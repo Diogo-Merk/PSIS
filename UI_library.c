@@ -1,6 +1,6 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
-//puta que pariu isto ta a funcionar
+
 int screen_width;
 int screen_height;
 int n_rows;
