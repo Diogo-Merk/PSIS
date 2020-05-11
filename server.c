@@ -29,8 +29,6 @@ int main(int agrc, char *argv[])
   printf("%d %d",cols,lines);
   if (fork()==0)
   {
-
-
     while(1)
     {
       int client_fd = accept(sock_fd,(struct sockaddr *)&client_addr,&addr_len);
@@ -39,8 +37,8 @@ int main(int agrc, char *argv[])
         perror("accept: ");
         exit(-1);
       }
-      write(client_fd,&cols,sizeof(cols));
-      write(client_fd,&lines,sizeof(lines));
+      sendto(client_fd,&cols,sizeof(cols),0,(struct sockaddr *)&client_addr,sizeof(client_addr));
+      sendto(client_fd,&lines,sizeof(lines),0,(struct sockaddr *)&client_addr,sizeof(client_addr));
     }
 
   }

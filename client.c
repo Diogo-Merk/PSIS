@@ -20,12 +20,13 @@ int main(int argc, char *argv[])
   struct sockaddr_in local_addr;
   struct sockaddr_in server_addr;
   int sock_fd = socket(AF_INET,SOCK_STREAM,0);
+  socklen_t size_server_addr;
 
   //Game Variables
   int done = 0;
   SDL_Event event;
   int position [2];
-  int map_size[2];
+  int cols,lines;
 
 
   //Testing argc
@@ -48,8 +49,10 @@ int main(int argc, char *argv[])
   printf("%d\n",port );
   //Connecting to server
   connect_server(ip_addr,port,local_addr,server_addr,sock_fd);
-  read(sock_fd,&map_size,sizeof(cols));
-  create_board_window(map_size[0],map_size[1]);
+  size_server_addr = sizeof(struct sockaddr_storage);
+  recvfrom(sock_fd,&cols,sizeof(cols),0,(struct sockaddr *)&server_addr,&size_server_addr);
+  recvfrom(sock_fd,&lines,sizeof(lines),0,(struct sockaddr *)&server_addr,&size_server_addr);
+  create_board_window(cols,lines);
   //create_board_window(cols,lines);
   while(!done)
   {
