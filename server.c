@@ -27,10 +27,10 @@ int main(int agrc, char *argv[])
   //Starting Map
   initialize_map(&cols,&lines);
   printf("%d %d",cols,lines);
+
+  //child process
   if (fork()==0)
   {
-    while(1)
-    {
       int client_fd = accept(sock_fd,(struct sockaddr *)&client_addr,&addr_len);
       if(client_fd == -1)
       {
@@ -39,20 +39,23 @@ int main(int agrc, char *argv[])
       }
       sendto(client_fd,&cols,sizeof(cols),0,(struct sockaddr *)&client_addr,sizeof(client_addr));
       sendto(client_fd,&lines,sizeof(lines),0,(struct sockaddr *)&client_addr,sizeof(client_addr));
-    }
-
+      exit(0);
   }
-
-  while(!done)
+  //Parent process
+  else
   {
-    while(SDL_PollEvent(&event))
+    while(!done)
     {
-      if(event.type == SDL_QUIT)
+      while(SDL_PollEvent(&event))
       {
-        done = SDL_TRUE;
+        if(event.type == SDL_QUIT)
+        {
+          done = SDL_TRUE;
+        }
       }
     }
   }
+
   close_board_windows();
   printf("fuck you\n");
   exit(0);
