@@ -6,23 +6,28 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
-#include "server.h"
+#include "client.h"
 #include "UI_library.h"
 
 #define MAXIP 20
 
 
-int main(int agrc, char *agrv[])
+int main(int argc, char *argv[])
 {
   //Client Variables
   char ip_addr[MAXIP];
   int port;
   struct sockaddr_in local_addr;
   struct sockaddr_in server_addr;
+  int sock_fd = socket(AF_INET,SOCK_STREAM,0);
 
   //Game Variables
+  int done = 0;
   SDL_Event event;
   int position [2];
+  int map_size[2];
+
+
   //Testing argc
   if(argc < 3)
   {
@@ -39,17 +44,21 @@ int main(int agrc, char *agrv[])
     printf("Port is not a number");
     exit(-1);
   }
-
+  printf("%s\n",ip_addr);
+  printf("%d\n",port );
   //Connecting to server
-  connect_server(ip_addr,port,local_addr,server_addr);
-  read()
-  create_board_window()
+  connect_server(ip_addr,port,local_addr,server_addr,sock_fd);
+  read(sock_fd,&map_size,sizeof(cols));
+  create_board_window(map_size[0],map_size[1]);
+  //create_board_window(cols,lines);
   while(!done)
   {
     while(SDL_PollEvent(&event))
     {
       if(event.type == SDL_QUIT)
+      {
         done = SDL_TRUE;
+      }
       //Movement
       //Update position
       //Send info
@@ -63,19 +72,18 @@ int main(int agrc, char *agrv[])
 
 }
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-void connect_server(char ip_addr[],int port,struct sockaddr_in local_addr,struct sockaddr_in server_addr)
+void connect_server(char ip_addr[MAXIP],int port,struct sockaddr_in local_addr,struct sockaddr_in server_addr, int sock_fd)
 {
-  int sock_fd = socket(AF_INET,SOCK_STREAM,0);
   if(sock_fd == -1)
   {
-    perror("socket: ")
+    perror("socket: ");
   }
 
-  server_addr.set_family = AF_INET;
-  server_addr.sin_port = port;
+  server_addr.sin_family = AF_INET;
+  server_addr.sin_port = htons(port);
   inet_aton(ip_addr,&server_addr.sin_addr);
 
-  if(connect(sock_fd,(const struct sockaddr *)&server_addr,sizeof()) == -1)
+  if(connect(sock_fd,(const struct sockaddr *)&server_addr,sizeof(server_addr)) == -1)
   {
     printf("Error connecting\n");
     exit(-1);

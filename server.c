@@ -20,11 +20,31 @@ int main(int agrc, char *argv[])
   //Game Variables
   int done = 0;
   SDL_Event event;
+  int cols,lines;
 
   //Starting server
   server_start(local_addr, sock_fd);
   //Starting Map
-  initialize_map();
+  initialize_map(&cols,&lines);
+  printf("%d %d",cols,lines);
+  if (fork()==0)
+  {
+
+
+    while(1)
+    {
+      int client_fd = accept(sock_fd,(struct sockaddr *)&client_addr,&addr_len);
+      if(client_fd == -1)
+      {
+        perror("accept: ");
+        exit(-1);
+      }
+      write(client_fd,&cols,sizeof(cols));
+      write(client_fd,&lines,sizeof(lines));
+    }
+
+  }
+
   while(!done)
   {
     while(SDL_PollEvent(&event))
@@ -33,13 +53,11 @@ int main(int agrc, char *argv[])
       {
         done = SDL_TRUE;
       }
-
     }
   }
   close_board_windows();
+  printf("fuck you\n");
   exit(0);
-
-
 }
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -62,8 +80,7 @@ void server_start(struct sockaddr_in local_addr, int sock_fd)
   }
 }
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-void initialize_map()
+void initialize_map(int *cols, int *lines)
 {
   int n_lines, n_cols;
   //Map file
@@ -102,14 +119,11 @@ void initialize_map()
       {
         paint_brick(x,y);
       }
-      else if(board[y][x]=='A')
-      {
-        break;
-      }
-
     }
     //printf("\n");
   }
-
+  *cols = n_cols;
+  *lines = n_lines;
 
 }
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
