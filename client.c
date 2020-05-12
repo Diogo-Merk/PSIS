@@ -27,6 +27,7 @@ int main(int argc, char *argv[])
   SDL_Event event;
   int position [2];
   int cols,lines;
+  char **board_geral;
 
 
   //Testing argc
@@ -52,7 +53,15 @@ int main(int argc, char *argv[])
   size_server_addr = sizeof(struct sockaddr_storage);
   recvfrom(sock_fd,&cols,sizeof(cols),0,(struct sockaddr *)&server_addr,&size_server_addr);
   recvfrom(sock_fd,&lines,sizeof(lines),0,(struct sockaddr *)&server_addr,&size_server_addr);
-  create_board_window(cols,lines);
+  board_geral = malloc(sizeof(char *) * lines);
+  for ( int i = 0 ; i < lines; i++)
+  {
+    board_geral[i] = malloc (sizeof(char) * (cols+1));
+  }
+  read(sock_fd,board_geral,sizeof(board_geral));
+
+  initialize_map(cols,lines,board_geral);
+
   //create_board_window(cols,lines);
   while(!done)
   {
@@ -93,3 +102,20 @@ void connect_server(char ip_addr[MAXIP],int port,struct sockaddr_in local_addr,s
   }
 }
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+void initialize_map(int n_cols, int n_lines, char **board_geral)
+{
+  create_board_window(n_cols, n_lines);
+  //Preencher paredes
+  for(int y=0;y<n_lines;y++)
+  {
+    for(int x=0;x<n_cols+1;x++)
+    {
+      printf("|>%c<|",board_geral[y][x]);
+      if(board_geral[y][x] == 'B')
+      {
+        paint_brick(x,y);
+      }
+    }
+    printf("\n");
+  }
+}

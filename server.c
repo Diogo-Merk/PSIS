@@ -21,16 +21,27 @@ int main(int agrc, char *argv[])
   int done = 0;
   SDL_Event event;
   int cols,lines;
+  char **board_geral;
 
   //Starting server
   server_start(local_addr, sock_fd);
   //Starting Map
-  initialize_map(&cols,&lines);
+  board_geral = initialize_map(&cols,&lines);
   printf("%d %d",cols,lines);
+  for(int i=0;i<lines;i++)
+  {
+    for(int j=0;j<cols+1;j++)
+    {
+      printf("|>%c<|",board_geral[i][j]);
+    }
+    printf("\n");
+  }
 
   //child process
   if (fork()==0)
   {
+    while(!done)
+    {
       int client_fd = accept(sock_fd,(struct sockaddr *)&client_addr,&addr_len);
       if(client_fd == -1)
       {
@@ -39,7 +50,9 @@ int main(int agrc, char *argv[])
       }
       sendto(client_fd,&cols,sizeof(cols),0,(struct sockaddr *)&client_addr,sizeof(client_addr));
       sendto(client_fd,&lines,sizeof(lines),0,(struct sockaddr *)&client_addr,sizeof(client_addr));
-      exit(0);
+      write(client_fd,board_geral,sizeof(board_geral));
+    }
+    exit(0);
   }
   //Parent process
   else
@@ -81,7 +94,7 @@ void server_start(struct sockaddr_in local_addr, int sock_fd)
   }
 }
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-void initialize_map(int *cols, int *lines)
+char** initialize_map(int *cols, int *lines)
 {
   int n_lines, n_cols;
   //Map file
@@ -125,6 +138,7 @@ void initialize_map(int *cols, int *lines)
   }
   *cols = n_cols;
   *lines = n_lines;
+  return board;
 
 }
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
