@@ -22,6 +22,8 @@ vs:
 vs:
 	valgrind ./server $A $B --leak-check=full -g
 
-clean::
+cleans::
 	rm -f *.o core a.out server gv *~
+
+cleanc::
 	rm -f *.o core a.out client gv *~
