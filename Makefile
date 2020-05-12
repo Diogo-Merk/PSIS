@@ -15,12 +15,6 @@ ts:
 
 tc:
 	./client $A $B
-# tests w/ valgrind mem check commands
-vs:
-	for F in ${FILES}; do valgrind ./server $${F} --leak-check=full; done;
-
-vs:
-	valgrind ./server $A $B --leak-check=full -g
 
 cleans::
 	rm -f *.o core a.out server gv *~
