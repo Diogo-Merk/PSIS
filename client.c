@@ -10,7 +10,7 @@
 #include "UI_library.h"
 
 #define MAXIP 20
-
+//https://github.com/Diogo-Merk/PSIS.git
 
 int main(int argc, char *argv[])
 {
@@ -28,6 +28,7 @@ int main(int argc, char *argv[])
   int position [2];
   int cols,lines;
   char **board_geral;
+  int horizontal_move = 0, vertical_move = 0;
 
 
   //Testing argc
@@ -79,14 +80,79 @@ int main(int argc, char *argv[])
       {
         done = SDL_TRUE;
       }
-      //Movement
+    //Movement
+    switch( event.type )
+    {
+      /* Look for a keypress */
+      case SDL_KEYDOWN:
+          /* Check the SDLKey values and move change the coords */
+          switch( event.key.keysym.sym )
+          {
+            case SDLK_LEFT:
+              if (board[ID.x-1][ID.y]!='B')
+              {
+                horizontal_move = -1;
+              }
+              break;
+            case SDLK_RIGHT:
+              if (board[ID.x+1][ID.y]!='B')
+              {
+                horizontal_move = 1;
+              }
+              break;
+            case SDLK_UP:
+              if (board[ID.x][ID.y-1]!='B')
+              {
+                vertical_move = -1;
+              }
+              break;
+            case SDLK_DOWN:
+              if (board[ID.x][ID.y+1]!='B')
+              {
+                vertical_move = 1;
+              }
+              break;
+            default:
+                break;
+          }
+      break;
+      /* Look for letting go of a key */
+      case SDL_KEYUP:
+        /* Check the SDLKey values and zero the movemnet when necessary */
+        switch( event.key.keysym.sym )
+        {
+          case SDLK_LEFT:
+              if( horizontal_move < 0 )
+                  horizontal_move = 0;
+              break;
+          case SDLK_RIGHT:
+              if( horizontal_move > 0 )
+                  horizontal_move = 0;
+              break;
+          case SDLK_UP:
+              if( vertical_move < 0 )
+                  vertical_move = 0;
+              break;
+          case SDLK_DOWN:
+              if( vertical_move > 0 )
+                  vertical_move = 0;
+              break;
+          default:
+              break;
+        }
+        break;
+
+        default:
+            break;
+        }
       //Update position
+     ID.x += horizontal_move;
+     ID.y += vertical_move;*/
       //Send info
 
     }
-  }
 
-}
+  }
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 void connect_server(char ip_addr[MAXIP],int port,struct sockaddr_in local_addr,struct sockaddr_in server_addr, int sock_fd)
 {
