@@ -196,9 +196,13 @@ void initialize_object(int n_cols, int n_lines, char **board_geral)
 {
   for (int x = 0; x < n_lines; x++)
   {
-    for (int y = 0; y < n_cols; y++) {
-      /* code */
+    for (int y = 0; y < n_cols; y++)
+    {
+      //de momento preenche todas os espaços que não têm blocos com pacmans
+      if (board_geral[x][y] != 'B')
+      {
+        paint_pacman(x, y, 255, 255, 0);
+      }
     }
   }
-  paint_pacman(x, y, 255, 255, 0);
 }
