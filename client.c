@@ -99,7 +99,7 @@ int main(int argc, char *argv[])
               {
                 horizontal_move = 1;
               }
-              break;
+              break; 
             case SDLK_UP:
               if (board[ID.x][ID.y-1]!='B')
               {
