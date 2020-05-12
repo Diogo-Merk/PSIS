@@ -29,6 +29,7 @@ int main(int argc, char *argv[])
   int cols,lines;
   char **board_geral;
   int horizontal_move = 0, vertical_move = 0;
+  Pacman pacman;
 
 
   //Testing argc
@@ -99,7 +100,7 @@ int main(int argc, char *argv[])
               {
                 horizontal_move = 1;
               }
-              break; 
+              break;
             case SDLK_UP:
               if (board[ID.x][ID.y-1]!='B')
               {
@@ -110,6 +111,7 @@ int main(int argc, char *argv[])
               if (board[ID.x][ID.y+1]!='B')
               {
                 vertical_move = 1;
+                pacman.
               }
               break;
             default:
@@ -147,7 +149,7 @@ int main(int argc, char *argv[])
         }
       //Update position
      ID.x += horizontal_move;
-     ID.y += vertical_move;*/
+     ID.y += vertical_move;
       //Send info
 
     }
