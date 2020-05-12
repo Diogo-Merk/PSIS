@@ -16,6 +16,7 @@ ts:
 tc:
 	./client $A $B
 
+#clear executable
 cleans::
 	rm -f *.o core a.out server gv *~
 

@@ -99,7 +99,7 @@ int main(int argc, char *argv[])
               {
                 horizontal_move = 1;
               }
-              break; 
+              break;
             case SDLK_UP:
               if (board[ID.x][ID.y-1]!='B')
               {
@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
               }
               break;
             default:
-                break;
+              break;
           }
       break;
       /* Look for letting go of a key */
@@ -122,32 +122,32 @@ int main(int argc, char *argv[])
         switch( event.key.keysym.sym )
         {
           case SDLK_LEFT:
-              if( horizontal_move < 0 )
-                  horizontal_move = 0;
-              break;
+            if( horizontal_move < 0 )
+                horizontal_move = 0;
+            break;
           case SDLK_RIGHT:
-              if( horizontal_move > 0 )
-                  horizontal_move = 0;
-              break;
+            if( horizontal_move > 0 )
+                horizontal_move = 0;
+            break;
           case SDLK_UP:
-              if( vertical_move < 0 )
-                  vertical_move = 0;
-              break;
+            if( vertical_move < 0 )
+                vertical_move = 0;
+            break;
           case SDLK_DOWN:
-              if( vertical_move > 0 )
-                  vertical_move = 0;
-              break;
+            if( vertical_move > 0 )
+                vertical_move = 0;
+            break;
           default:
-              break;
+            break;
         }
         break;
 
         default:
-            break;
+          break;
         }
       //Update position
      ID.x += horizontal_move;
-     ID.y += vertical_move;*/
+     ID.y += vertical_move;
       //Send info
 
     }
@@ -189,4 +189,16 @@ void initialize_map(int n_cols, int n_lines, char **board_geral)
     printf("\n");
   }
   printf("bricks good\n");
+}
+
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+void initialize_object(int n_cols, int n_lines, char **board_geral)
+{
+  for (int x = 0; x < n_lines; x++)
+  {
+    for (int y = 0; y < n_cols; y++) {
+      /* code */
+    }
+  }
+  paint_pacman(x, y, 255, 255, 0);
 }
