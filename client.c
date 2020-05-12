@@ -58,8 +58,16 @@ int main(int argc, char *argv[])
   {
     board_geral[i] = malloc (sizeof(char) * (cols+1));
   }
-  read(sock_fd,board_geral,sizeof(board_geral));
+  printf("Malloc good\n");
 
+  for(int i=0;i<lines;i++)
+  {
+    for(int j=0;j<cols+1;j++)
+    {
+      recvfrom(sock_fd,&board_geral[i][j],sizeof(char),0,(struct sockaddr*)&server_addr,&size_server_addr);
+    }
+  }
+  printf("recieve good\n");
   initialize_map(cols,lines,board_geral);
 
   //create_board_window(cols,lines);
@@ -77,10 +85,6 @@ int main(int argc, char *argv[])
 
     }
   }
-
-
-
-
 
 }
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -105,12 +109,12 @@ void connect_server(char ip_addr[MAXIP],int port,struct sockaddr_in local_addr,s
 void initialize_map(int n_cols, int n_lines, char **board_geral)
 {
   create_board_window(n_cols, n_lines);
+  printf("create map good\n");
   //Preencher paredes
   for(int y=0;y<n_lines;y++)
   {
     for(int x=0;x<n_cols+1;x++)
     {
-      printf("|>%c<|",board_geral[y][x]);
       if(board_geral[y][x] == 'B')
       {
         paint_brick(x,y);
@@ -118,4 +122,5 @@ void initialize_map(int n_cols, int n_lines, char **board_geral)
     }
     printf("\n");
   }
+  printf("bricks good\n");
 }

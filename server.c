@@ -28,14 +28,6 @@ int main(int agrc, char *argv[])
   //Starting Map
   board_geral = initialize_map(&cols,&lines);
   printf("%d %d",cols,lines);
-  for(int i=0;i<lines;i++)
-  {
-    for(int j=0;j<cols+1;j++)
-    {
-      printf("|>%c<|",board_geral[i][j]);
-    }
-    printf("\n");
-  }
 
   //child process
   if (fork()==0)
@@ -50,7 +42,15 @@ int main(int agrc, char *argv[])
       }
       sendto(client_fd,&cols,sizeof(cols),0,(struct sockaddr *)&client_addr,sizeof(client_addr));
       sendto(client_fd,&lines,sizeof(lines),0,(struct sockaddr *)&client_addr,sizeof(client_addr));
-      write(client_fd,board_geral,sizeof(board_geral));
+
+      for(int i=0;i<lines;i++)
+      {
+        for(int j=0;j<cols+1;j++)
+        {
+          sendto(client_fd,&board_geral[i][j],sizeof(char),0,(struct sockaddr *)&client_addr,sizeof(client_addr));
+        }
+      }
+
     }
     exit(0);
   }
