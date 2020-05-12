@@ -29,6 +29,7 @@ int main(int argc, char *argv[])
   int cols,lines;
   char **board_geral;
   int horizontal_move = 0, vertical_move = 0;
+  Pacman pacman;
 
 
   //Testing argc
@@ -110,6 +111,7 @@ int main(int argc, char *argv[])
               if (board[ID.x][ID.y+1]!='B')
               {
                 vertical_move = 1;
+                pacman.
               }
               break;
             default:

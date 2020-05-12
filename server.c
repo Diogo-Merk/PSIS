@@ -16,13 +16,13 @@ int main(int agrc, char *argv[])
   struct sockaddr_in client_addr;
   socklen_t addr_len;
   int sock_fd = socket(AF_INET,SOCK_STREAM,0);
+  int server_connections;
 
   //Game Variables
   int done = 0;
   SDL_Event event;
   int cols,lines;
   char **board_geral;
-
   //Starting server
   server_start(local_addr, sock_fd);
   //Starting Map
@@ -30,9 +30,9 @@ int main(int agrc, char *argv[])
   printf("%d %d",cols,lines);
 
   //child process
-  if (fork()==0)
+  if (server_connections = fork()==0)
   {
-    while(!done)
+    while(1)
     {
       int client_fd = accept(sock_fd,(struct sockaddr *)&client_addr,&addr_len);
       if(client_fd == -1)
@@ -50,9 +50,7 @@ int main(int agrc, char *argv[])
           sendto(client_fd,&board_geral[i][j],sizeof(char),0,(struct sockaddr *)&client_addr,sizeof(client_addr));
         }
       }
-
     }
-    exit(0);
   }
   //Parent process
   else
@@ -70,6 +68,7 @@ int main(int agrc, char *argv[])
   }
 
   close_board_windows();
+  kill(server_connections);
   printf("fuck you\n");
   exit(0);
 }
