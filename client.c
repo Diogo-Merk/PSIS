@@ -25,7 +25,6 @@ int main(int argc, char *argv[])
   //Game Variables
   SDL_Event event;
   int done = 0;
-  int position [2];
   int cols,lines,n_players;
   char **board_geral;
   int pac_horizontal_move = 0, pac_vertical_move = 0, mon_horizontal_move = 0, mon_horizontal_move = 0, xaux = 0, yaux = 0;
@@ -85,7 +84,7 @@ int main(int argc, char *argv[])
       //recieving player positions
       for ( int i=0;i<n_players;i++)
       {
-        recvfrom(sock_fd,&pacman_others[i],sizeof(Players),0,(struct sockaddr*)&server_addr,&size_server_addr);
+        recvfrom(sock_fd,&pacman_others[i],sizeof(Player),0,(struct sockaddr*)&server_addr,&size_server_addr);
       }
 
       //Movement
@@ -98,25 +97,25 @@ int main(int argc, char *argv[])
             switch( event.key.keysym.sym )
             {
               case SDLK_LEFT:
-                if (board[monster_local.x-1][monster_local.y]!='B')
+                if (board_geral[monster_local.x-1][monster_local.y]!='B')
                 {
                   mon_horizontal_move = -1;
                 }
                 break;
               case SDLK_RIGHT:
-                if (board[monster_local.x+1][monster_local.y]!='B')
+                if (board_geral[monster_local.x+1][monster_local.y]!='B')
                 {
                   mon_horizontal_move = 1;
                 }
                 break;
               case SDLK_UP:
-                if (board[monster_local.x][monster_local.y-1]!='B')
+                if (board_geral[monster_local.x][monster_local.y-1]!='B')
                 {
                   mon_vertical_move = -1;
                 }
                 break;
               case SDLK_DOWN:
-                if (board[monster_local.x][monster_local.y+1]!='B')
+                if (board_geral[monster_local.x][monster_local.y+1]!='B')
                 {
                   mon_vertical_move = 1;
                 }
@@ -212,12 +211,12 @@ int main(int argc, char *argv[])
       pacman_local.y += pac_vertical_move;
       //Send info
       sendto(sock_fd,&pacman_local,sizeof(Player),0,(struct sockaddr*)&server_addr,&size_server_addr);
-      free(pacman_others)
-      ;
+      free(pacman_others);
     }
   }
   close_board_windows();
   exit(0);
+}
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 void connect_server(char ip_addr[MAXIP],int port,struct sockaddr_in local_addr,struct sockaddr_in server_addr, int sock_fd)
 {
@@ -257,7 +256,7 @@ void update_map(Player *pacmans,int n_players)
 {
   for(int i=0;i<n_players;i++)
   {
-    paint_pacman(pacmans.x,pacmans.y,255,255,0);
+    paint_pacman(pacmans[i].x,pacmans[i].y,255,255,0);
   }
 }
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
