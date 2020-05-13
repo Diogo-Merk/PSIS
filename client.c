@@ -29,9 +29,8 @@ int main(int argc, char *argv[])
   int cols,lines,n_players;
   char **board_geral;
   int pac_horizontal_move = 0, pac_vertical_move = 0, mon_horizontal_move = 0, mon_horizontal_move = 0, xaux = 0, yaux = 0;
-  Player pacman_local;
+  Player pacman_local, monster_local;
   Player *pacman_others;
-
 
   //Testing argc
   if(argc < 3)
@@ -99,25 +98,25 @@ int main(int argc, char *argv[])
             switch( event.key.keysym.sym )
             {
               case SDLK_LEFT:
-                if (board[ID.x-1][ID.y]!='B')
+                if (board[monster_local.x-1][monster_local.y]!='B')
                 {
                   mon_horizontal_move = -1;
                 }
                 break;
               case SDLK_RIGHT:
-                if (board[ID.x+1][ID.y]!='B')
+                if (board[monster_local.x+1][monster_local.y]!='B')
                 {
                   mon_horizontal_move = 1;
                 }
                 break;
               case SDLK_UP:
-                if (board[ID.x][ID.y-1]!='B')
+                if (board[monster_local.x][monster_local.y-1]!='B')
                 {
                   mon_vertical_move = -1;
                 }
                 break;
               case SDLK_DOWN:
-                if (board[ID.x][ID.y+1]!='B')
+                if (board[monster_local.x][monster_local.y+1]!='B')
                 {
                   mon_vertical_move = 1;
                 }
@@ -159,19 +158,19 @@ int main(int argc, char *argv[])
               if( event.button.button == SDL_BUTTON_LEFT)
               {
                 SDL_GetMouseState(xaux, yaux);
-                if (xaux>ID.x && yaux < xaux && yaux > -xaux)
+                if (xaux>pacman_local.x && yaux < xaux && yaux > -xaux)
                 {
                   pac_horizontal_move = 1;
                 }
-                if (xaux<ID.x && yaux > xaux && yaux < -xaux)
+                if (xaux<pacman_local.x && yaux > xaux && yaux < -xaux)
                 {
                   pac_horizontal_move = -1;
                 }
-                if (yaux>ID.y && yaux > xaux && yaux > -xaux)
+                if (yaux>pacman_local.y && yaux > xaux && yaux > -xaux)
                 {
                   pac_vertical_move = 1;
                 }
-                if (yaux>ID.y && yaux < xaux && yaux < -xaux)
+                if (yaux>pacman_local.y && yaux < xaux && yaux < -xaux)
                 {
                   pac_vertical_move = -1;
                 }
@@ -207,10 +206,10 @@ int main(int argc, char *argv[])
             break;
         }
       //Update position
-      ID.x += mon_horizontal_move;
-      ID.y += mon_vertical_move;
-      ID.x += pac_horizontal_move;
-      ID.y += pac_vertical_move;
+      monster_local.x += mon_horizontal_move;
+      monster_local.y += mon_vertical_move;
+      pacman_local.x += pac_horizontal_move;
+      pacman_local.y += pac_vertical_move;
       //Send info
       sendto(sock_fd,&pacman_local,sizeof(Player),0,(struct sockaddr*)&server_addr,&size_server_addr);
       free(pacman_others)
