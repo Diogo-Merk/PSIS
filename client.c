@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
   int position [2];
   int cols,lines,n_players;
   char **board_geral;
-  int horizontal_move = 0, vertical_move = 0;
+  int pac_horizontal_move = 0, pac_vertical_move = 0, mon_horizontal_move = 0, mon_horizontal_move = 0, xaux = 0, yaux = 0;
   Player pacman_local;
   Player *pacman_others;
 
@@ -92,72 +92,125 @@ int main(int argc, char *argv[])
       //Movement
       switch( event.type )
       {
-      /* Look for a keypress */
-      case SDL_KEYDOWN:
-          /* Check the SDLKey values and move change the coords */
-          switch( event.key.keysym.sym )
+        //Monster Movement
+        /* Look for a keypress */
+        case SDL_KEYDOWN:
+            /* Check the SDLKey values and move change the coords */
+            switch( event.key.keysym.sym )
+            {
+              case SDLK_LEFT:
+                if (board[ID.x-1][ID.y]!='B')
+                {
+                  mon_horizontal_move = -1;
+                }
+                break;
+              case SDLK_RIGHT:
+                if (board[ID.x+1][ID.y]!='B')
+                {
+                  mon_horizontal_move = 1;
+                }
+                break;
+              case SDLK_UP:
+                if (board[ID.x][ID.y-1]!='B')
+                {
+                  mon_vertical_move = -1;
+                }
+                break;
+              case SDLK_DOWN:
+                if (board[ID.x][ID.y+1]!='B')
+                {
+                  mon_vertical_move = 1;
+                }
+                break;
+              default:
+                break;
+            }
+        break;
+        /* Look for letting go of a key */
+        case SDL_KEYUP:
+          /* Check the SDLKey values and zero the movemnet when necessary */
+          switch( event.key.keysym.sym)
           {
             case SDLK_LEFT:
-              if (board[ID.x-1][ID.y]!='B')
-              {
-                horizontal_move = -1;
-              }
+              if( mon_horizontal_move < 0 )
+                  mon_horizontal_move = 0;
               break;
             case SDLK_RIGHT:
-              if (board[ID.x+1][ID.y]!='B')
-              {
-                horizontal_move = 1;
-              }
+              if( mon_horizontal_move > 0 )
+                  mon_horizontal_move = 0;
               break;
             case SDLK_UP:
-              if (board[ID.x][ID.y-1]!='B')
-              {
-                vertical_move = -1;
-              }
+              if( mon_vertical_move < 0 )
+                  mon_vertical_move = 0;
               break;
             case SDLK_DOWN:
-              if (board[ID.x][ID.y+1]!='B')
-              {
-                vertical_move = 1;
-                pacman.
-              }
+              if( mon_vertical_move > 0 )
+                  mon_vertical_move = 0;
               break;
             default:
               break;
           }
-      break;
-      /* Look for letting go of a key */
-      case SDL_KEYUP:
-        /* Check the SDLKey values and zero the movemnet when necessary */
-        switch( event.key.keysym.sym )
-        {
-          case SDLK_LEFT:
-            if( horizontal_move < 0 )
-                horizontal_move = 0;
+          break;
+
+          //Pacman Movement
+          /* Look for a keypress */
+          case SDL_MOUSEBUTTONDOWN:
+              /* Check the SDLKey values and move change the coords */
+              if( event.button.button == SDL_BUTTON_LEFT)
+              {
+                SDL_GetMouseState(xaux, yaux);
+                if (xaux>ID.x && yaux < xaux && yaux > -xaux)
+                {
+                  pac_horizontal_move = 1;
+                }
+                if (xaux<ID.x && yaux > xaux && yaux < -xaux)
+                {
+                  pac_horizontal_move = -1;
+                }
+                if (yaux>ID.y && yaux > xaux && yaux > -xaux)
+                {
+                  pac_vertical_move = 1;
+                }
+                if (yaux>ID.y && yaux < xaux && yaux < -xaux)
+                {
+                  pac_vertical_move = -1;
+                }
+              }
+          break;
+          /* Look for letting go of a key */
+          case SDL_MOUSEBUTTONUP:
+            /* Check the SDLKey values and zero the movemnet when necessary */
+            if(event.button.button == SDL_BUTTON_LEFT)
+            {
+                if( pac_horizontal_move < 0 )
+                {
+                  pac_horizontal_move = 0;
+                }
+                if( pac_horizontal_move > 0 )
+                {
+                  pac_horizontal_move = 0;
+                }
+
+                if( pac_vertical_move < 0 )
+                {
+                  pac_vertical_move = 0;
+                }
+
+                if( pac_vertical_move > 0 )
+                {
+                  pac_vertical_move = 0;
+                }
+            }
             break;
-          case SDLK_RIGHT:
-            if( horizontal_move > 0 )
-                horizontal_move = 0;
-            break;
-          case SDLK_UP:
-            if( vertical_move < 0 )
-                vertical_move = 0;
-            break;
-          case SDLK_DOWN:
-            if( vertical_move > 0 )
-                vertical_move = 0;
-            break;
+
           default:
             break;
         }
-        break;
-
-        default:
-          break;
-        }
       //Update position
-      ID.x += horizontal_move;
-      ID.y += vertical_move;
+      ID.x += mon_horizontal_move;
+      ID.y += mon_vertical_move;
+      ID.x += pac_horizontal_move;
+      ID.y += pac_vertical_move;
       //Send info
       sendto(sock_fd,&pacman_local,sizeof(Player),0,(struct sockaddr*)&server_addr,&size_server_addr);
       free(pacman_others)
@@ -201,27 +254,11 @@ void initialize_map(int n_cols, int n_lines, char **board_geral)
   }
 }
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-void initialize_object(int n_cols, int n_lines, char **board_geral)
-{
-  for (int x = 0; x < n_lines; x++)
-  {
-    for (int y = 0; y < n_cols; y++)
-    {
-      //de momento preenche todas os espaços que não têm blocos com pacmans
-      if (board_geral[x][y] != 'B')
-      {
-        paint_pacman(x, y, 255, 255, 0);
-        return;
-      }
-    }
-  }
-}
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 void update_map(Player *pacmans,int n_players)
 {
   for(int i=0;i<n_players;i++)
   {
-    paint_pacman(pacmans.x,pacmans.y,0,0,0);
+    paint_pacman(pacmans.x,pacmans.y,255,255,0);
   }
 }
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
