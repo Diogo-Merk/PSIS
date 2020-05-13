@@ -1,8 +1,9 @@
-typedef struct Pacman
+typedef struct Player
 {
   int x,y;
+  int r,g,b;
   int ID;
-}Pacman;
+}Player;
 
 
 void connect_server(char ip_addr[],int port,struct sockaddr_in local_addr,struct sockaddr_in server_addr, int sock_fd);
