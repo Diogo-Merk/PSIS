@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
   int done = 0;
   int cols,lines,n_players;
   char **board_geral;
-  int pac_horizontal_move = 0, pac_vertical_move = 0, mon_horizontal_move = 0, mon_horizontal_move = 0, xaux = 0, yaux = 0;
+  int pac_horizontal_move = 0, pac_vertical_move = 0, mon_horizontal_move = 0, mon_vertical_move = 0, xaux = 0, yaux = 0;
   Player pacman_local, monster_local;
   Player *pacman_others;
 
@@ -54,6 +54,7 @@ int main(int argc, char *argv[])
   size_server_addr = sizeof(struct sockaddr_storage);
   recvfrom(sock_fd,&cols,sizeof(cols),0,(struct sockaddr *)&server_addr,&size_server_addr);
   recvfrom(sock_fd,&lines,sizeof(lines),0,(struct sockaddr *)&server_addr,&size_server_addr);
+  printf("%d %d\n",cols,lines);
   board_geral = malloc(sizeof(char *) * lines);
   for ( int i = 0 ; i < lines; i++)
   {
@@ -67,7 +68,9 @@ int main(int argc, char *argv[])
       recvfrom(sock_fd,&board_geral[i][j],sizeof(char),0,(struct sockaddr*)&server_addr,&size_server_addr);
     }
   }
+  printf("Board kinda good\n");
   initialize_map(cols,lines,board_geral);
+  printf("map good\n");
 
   while(!done)
   {
@@ -80,6 +83,7 @@ int main(int argc, char *argv[])
       //recieving number of players
       recvfrom(sock_fd,&n_players,sizeof(int),0,(struct sockaddr*)&server_addr,&size_server_addr);
       pacman_others = malloc(sizeof(Player)*n_players);
+      printf("recieving\n");
 
       //recieving player positions
       for ( int i=0;i<n_players;i++)
@@ -156,20 +160,20 @@ int main(int argc, char *argv[])
               /* Check the SDLKey values and move change the coords */
               if( event.button.button == SDL_BUTTON_LEFT)
               {
-                SDL_GetMouseState(xaux, yaux);
-                if (xaux>pacman_local.x && yaux < xaux && yaux > -xaux && board[pacman_local.x+1][pacman_local.y]!='B')
+                SDL_GetMouseState(&xaux, &yaux);
+                if (xaux>pacman_local.x && yaux < xaux && yaux > -xaux && board_geral[pacman_local.x+1][pacman_local.y]!='B')
                 {
                   pac_horizontal_move = 1;
                 }
-                if (xaux<pacman_local.x && yaux > xaux && yaux < -xaux && board[pacman_local.x-1][pacman_local.y]!='B')
+                if (xaux<pacman_local.x && yaux > xaux && yaux < -xaux && board_geral[pacman_local.x-1][pacman_local.y]!='B')
                 {
                   pac_horizontal_move = -1;
                 }
-                if (yaux>pacman_local.y && yaux > xaux && yaux > -xaux && board[pacman_local.x][pacman_local.y+1]!='B')
+                if (yaux>pacman_local.y && yaux > xaux && yaux > -xaux && board_geral[pacman_local.x][pacman_local.y+1]!='B')
                 {
                   pac_vertical_move = 1;
                 }
-                if (yaux>pacman_local.y && yaux < xaux && yaux < -xaux && board[pacman_local.x][pacman_local.y-1]!='B')
+                if (yaux>pacman_local.y && yaux < xaux && yaux < -xaux && board_geral[pacman_local.x][pacman_local.y-1]!='B')
                 {
                   pac_vertical_move = -1;
                 }
@@ -210,7 +214,9 @@ int main(int argc, char *argv[])
       pacman_local.x += pac_horizontal_move;
       pacman_local.y += pac_vertical_move;
       //Send info
-      sendto(sock_fd,&pacman_local,sizeof(Player),0,(struct sockaddr*)&server_addr,&size_server_addr);
+      update_map(pacman_others,n_players);
+      printf("Is it working?\n");
+      sendto(sock_fd,&pacman_local,sizeof(Player),0,(struct sockaddr*)&server_addr,sizeof(server_addr));
       free(pacman_others);
     }
   }
@@ -239,6 +245,7 @@ void connect_server(char ip_addr[MAXIP],int port,struct sockaddr_in local_addr,s
 void initialize_map(int n_cols, int n_lines, char **board_geral)
 {
   create_board_window(n_cols, n_lines);
+  printf("map kinda good\n");
   //Preencher paredes
   for(int y=0;y<n_lines;y++)
   {
