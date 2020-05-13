@@ -25,7 +25,6 @@ int main(int argc, char *argv[])
   //Game Variables
   SDL_Event event;
   int done = 0;
-  int position [2];
   int cols,lines,n_players;
   char **board_geral;
   int pac_horizontal_move = 0, pac_vertical_move = 0, mon_horizontal_move = 0, mon_horizontal_move = 0, xaux = 0, yaux = 0;
@@ -212,8 +211,7 @@ int main(int argc, char *argv[])
       pacman_local.y += pac_vertical_move;
       //Send info
       sendto(sock_fd,&pacman_local,sizeof(Player),0,(struct sockaddr*)&server_addr,&size_server_addr);
-      free(pacman_others)
-      ;
+      free(pacman_others);
     }
   }
   close_board_windows();
@@ -257,7 +255,7 @@ void update_map(Player *pacmans,int n_players)
 {
   for(int i=0;i<n_players;i++)
   {
-    paint_pacman(pacmans.x,pacmans.y,255,255,0);
+    paint_pacman(pacmans[i].x,pacmans[i].y,255,255,0);
   }
 }
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

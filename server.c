@@ -10,15 +10,19 @@
 #include "server.h"
 #include "UI_library.h"
 
+//Global Variables
+int n_players=0;
+int *clients;
+struct sockaddr_in *all_clients_addr;
+
 int main(int agrc, char *argv[])
 {
   //Server Variables
   struct sockaddr_in local_addr;
   struct sockaddr_in client_addr;
-  struct sockaddr_in *all_clients_addr;
   socklen_t addr_len;
   int sock_fd = socket(AF_INET,SOCK_STREAM,0);
-  int *clients;
+
 
 
   //Game Variables
@@ -27,7 +31,7 @@ int main(int agrc, char *argv[])
   int cols,lines,n_playersmax;
   char **board_geral;
   Player_ID *player_pacmans;
-  int n_players=0;
+
 
   //Starting server
   server_start(local_addr, sock_fd);
