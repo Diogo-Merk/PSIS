@@ -157,19 +157,19 @@ int main(int argc, char *argv[])
               if( event.button.button == SDL_BUTTON_LEFT)
               {
                 SDL_GetMouseState(xaux, yaux);
-                if (xaux>pacman_local.x && yaux < xaux && yaux > -xaux)
+                if (xaux>pacman_local.x && yaux < xaux && yaux > -xaux && board[pacman_local.x+1][pacman_local.y]!='B')
                 {
                   pac_horizontal_move = 1;
                 }
-                if (xaux<pacman_local.x && yaux > xaux && yaux < -xaux)
+                if (xaux<pacman_local.x && yaux > xaux && yaux < -xaux && board[pacman_local.x-1][pacman_local.y]!='B')
                 {
                   pac_horizontal_move = -1;
                 }
-                if (yaux>pacman_local.y && yaux > xaux && yaux > -xaux)
+                if (yaux>pacman_local.y && yaux > xaux && yaux > -xaux && board[pacman_local.x][pacman_local.y+1]!='B')
                 {
                   pac_vertical_move = 1;
                 }
-                if (yaux>pacman_local.y && yaux < xaux && yaux < -xaux)
+                if (yaux>pacman_local.y && yaux < xaux && yaux < -xaux && board[pacman_local.x][pacman_local.y-1]!='B')
                 {
                   pac_vertical_move = -1;
                 }
