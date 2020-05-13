@@ -204,6 +204,7 @@ void initialize_object(int n_cols, int n_lines, char **board_geral)
       if (board_geral[x][y] != 'B')
       {
         paint_pacman(x, y, 255, 255, 0);
+        return;
       }
     }
   }
