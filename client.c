@@ -23,13 +23,14 @@ int main(int argc, char *argv[])
   socklen_t size_server_addr;
 
   //Game Variables
-  int done = 0;
   SDL_Event event;
+  int done = 0;
   int position [2];
-  int cols,lines;
+  int cols,lines,n_players;
   char **board_geral;
   int horizontal_move = 0, vertical_move = 0;
-  Pacman pacman;
+  Player pacman_local;
+  Player *pacman_others;
 
 
   //Testing argc
@@ -60,7 +61,6 @@ int main(int argc, char *argv[])
   {
     board_geral[i] = malloc (sizeof(char) * (cols+1));
   }
-  printf("Malloc good\n");
 
   for(int i=0;i<lines;i++)
   {
@@ -69,10 +69,8 @@ int main(int argc, char *argv[])
       recvfrom(sock_fd,&board_geral[i][j],sizeof(char),0,(struct sockaddr*)&server_addr,&size_server_addr);
     }
   }
-  printf("recieve good\n");
   initialize_map(cols,lines,board_geral);
 
-  //create_board_window(cols,lines);
   while(!done)
   {
     while(SDL_PollEvent(&event))
@@ -81,9 +79,19 @@ int main(int argc, char *argv[])
       {
         done = SDL_TRUE;
       }
-    //Movement
-    switch( event.type )
-    {
+      //recieving number of players
+      recvfrom(sock_fd,&n_players,sizeof(int),0,(struct sockaddr*)&server_addr,&size_server_addr);
+      pacman_others = malloc(sizeof(Player)*n_players);
+
+      //recieving player positions
+      for ( int i=0;i<n_players;i++)
+      {
+        recvfrom(sock_fd,&pacman_others[i],sizeof(Players),0,(struct sockaddr*)&server_addr,&size_server_addr);
+      }
+
+      //Movement
+      switch( event.type )
+      {
       /* Look for a keypress */
       case SDL_KEYDOWN:
           /* Check the SDLKey values and move change the coords */
@@ -148,13 +156,16 @@ int main(int argc, char *argv[])
           break;
         }
       //Update position
-     ID.x += horizontal_move;
-     ID.y += vertical_move;
+      ID.x += horizontal_move;
+      ID.y += vertical_move;
       //Send info
-
+      sendto(sock_fd,&pacman_local,sizeof(Player),0,(struct sockaddr*)&server_addr,&size_server_addr);
+      free(pacman_others)
+      ;
     }
-
   }
+  close_board_windows();
+  exit(0);
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 void connect_server(char ip_addr[MAXIP],int port,struct sockaddr_in local_addr,struct sockaddr_in server_addr, int sock_fd)
 {
@@ -177,7 +188,6 @@ void connect_server(char ip_addr[MAXIP],int port,struct sockaddr_in local_addr,s
 void initialize_map(int n_cols, int n_lines, char **board_geral)
 {
   create_board_window(n_cols, n_lines);
-  printf("create map good\n");
   //Preencher paredes
   for(int y=0;y<n_lines;y++)
   {
@@ -188,11 +198,8 @@ void initialize_map(int n_cols, int n_lines, char **board_geral)
         paint_brick(x,y);
       }
     }
-    printf("\n");
   }
-  printf("bricks good\n");
 }
-
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 void initialize_object(int n_cols, int n_lines, char **board_geral)
 {
@@ -209,3 +216,12 @@ void initialize_object(int n_cols, int n_lines, char **board_geral)
     }
   }
 }
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+void update_map(Player *pacmans,int n_players)
+{
+  for(int i=0;i<n_players;i++)
+  {
+    paint_pacman(pacmans.x,pacmans.y,0,0,0);
+  }
+}
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
