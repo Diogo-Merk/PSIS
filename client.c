@@ -105,11 +105,19 @@ int main(int argc, char *argv[])
                 {
                   mon_horizontal_move = -1;
                 }
+                else if (board_geral[monster_local.x-1][monster_local.y]=='B' && board_geral[monster_local.x+1][monster_local.y]!='B')
+                {
+                  mon_horizontal_move = 1;
+                }
                 break;
               case SDLK_RIGHT:
                 if (board_geral[monster_local.x+1][monster_local.y]!='B')
                 {
                   mon_horizontal_move = 1;
+                }
+                else if (board_geral[monster_local.x+1][monster_local.y]=='B' && board_geral[monster_local.x-1][monster_local.y]!='B')
+                {
+                  mon_horizontal_move = -1;
                 }
                 break;
               case SDLK_UP:
@@ -117,11 +125,19 @@ int main(int argc, char *argv[])
                 {
                   mon_vertical_move = -1;
                 }
+                else if (board_geral[monster_local.x][monster_local.y-1]=='B' && board_geral[monster_local.x][monster_local.y+1]!='B')
+                {
+                  mon_vertical_move = 1;
+                }
                 break;
               case SDLK_DOWN:
                 if (board_geral[monster_local.x][monster_local.y+1]!='B')
                 {
                   mon_vertical_move = 1;
+                }
+                else if (board_geral[monster_local.x][monster_local.y+1]=='B' && board_geral[monster_local.x][monster_local.y-1]!='B') 
+                {
+                  mon_vertical_move = -1;
                 }
                 break;
               default:
@@ -165,17 +181,33 @@ int main(int argc, char *argv[])
                 {
                   pac_horizontal_move = 1;
                 }
+                else if (board_geral[pacman_local.x+1][pacman_local.y]=='B' && board_geral[pacman_local.x-1][pacman_local.y]!='B')
+                {
+                  pac_horizontal_move = -1;
+                }
                 if (xaux<pacman_local.x && yaux > xaux && yaux < -xaux && board_geral[pacman_local.x-1][pacman_local.y]!='B')
                 {
                   pac_horizontal_move = -1;
+                }
+                else if (board_geral[pacman_local.x-1][pacman_local.y]=='B' && board_geral[pacman_local.x+1][pacman_local.y]!='B')
+                {
+                  pac_horizontal_move = 1;
                 }
                 if (yaux>pacman_local.y && yaux > xaux && yaux > -xaux && board_geral[pacman_local.x][pacman_local.y+1]!='B')
                 {
                   pac_vertical_move = 1;
                 }
+                else if (board_geral[pacman_local.x][pacman_local.y+1]=='B' && board_geral[pacman_local.x][pacman_local.y-1]!='B')
+                {
+                  pac_vertical_move = -1;
+                }
                 if (yaux>pacman_local.y && yaux < xaux && yaux < -xaux && board_geral[pacman_local.x][pacman_local.y-1]!='B')
                 {
                   pac_vertical_move = -1;
+                }
+                else if (board_geral[pacman_local.x][pacman_local.y-1]=='B' && board_geral[pacman_local.x-1][pacman_local.y+1]!='B')
+                {
+                  pac_vertical_move = 1;
                 }
               }
           break;
