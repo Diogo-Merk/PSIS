@@ -40,8 +40,11 @@ int main(int agrc, char *argv[])
   player_pacmans = malloc(sizeof(Player_ID)*n_playersmax);
   clients = malloc(sizeof(int)*n_playersmax);
   all_clients_addr = malloc(sizeof(struct sockaddr_in)*n_playersmax);
-  int child = fork();
-  if(child == 0)
+
+
+  //Mudar para thread
+  int child;
+  if(child = fork() == 0)
   {
     while(1)
     {
@@ -65,6 +68,10 @@ int main(int agrc, char *argv[])
     }
   }
 
+
+
+  printf("test1\n");
+  printf("%d\n",player_pacmans[n_players].y);
   //Parent process
     while(!done)
     {

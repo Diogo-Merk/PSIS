@@ -261,6 +261,7 @@ void initialize_map(int n_cols, int n_lines, char **board_geral)
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 void update_map(Player *pacmans,int n_players)
 {
+  printf("updating\n");
   for(int i=0;i<n_players;i++)
   {
     paint_pacman(pacmans[i].x,pacmans[i].y,255,255,0);
