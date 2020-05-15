@@ -7,6 +7,7 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <signal.h>
+#include <pthread.h>
 #include "server.h"
 #include "UI_library.h"
 
@@ -14,64 +15,35 @@
 int n_players=0;
 int *clients;
 struct sockaddr_in *all_clients_addr;
+Player_ID *player_pacmans;
+new_connect first_connect;
+int client_fd;
 
 int main(int agrc, char *argv[])
 {
   //Server Variables
-  struct sockaddr_in local_addr;
-  struct sockaddr_in client_addr;
-  socklen_t addr_len;
-  int sock_fd = socket(AF_INET,SOCK_STREAM,0);
-
-
+  pthread_t connections;
+  first_connect.sock_fd = socket(AF_INET,SOCK_STREAM,0);
 
   //Game Variables
   int done = 0;
   SDL_Event event;
-  int cols,lines,n_playersmax;
-  char **board_geral;
-  Player_ID *player_pacmans;
+  int n_playersmax;
+
 
 
   //Starting server
-  server_start(local_addr, sock_fd);
+  server_start(first_connect.local_addr, first_connect.sock_fd);
   //Starting Map
-  board_geral = initialize_map(&cols,&lines,&n_playersmax);
+  first_connect.board_geral = initialize_map(&first_connect.cols,&first_connect.lines,&n_playersmax);
   player_pacmans = malloc(sizeof(Player_ID)*n_playersmax);
   clients = malloc(sizeof(int)*n_playersmax);
   all_clients_addr = malloc(sizeof(struct sockaddr_in)*n_playersmax);
 
-
-  //Mudar para thread
-  int child;
-  if((child = fork()) == 0)
-  {
-    while(1)
-    {
-      int client_fd = accept(sock_fd,(struct sockaddr*)&client_addr,&addr_len);
-      sendto(client_fd,&cols,sizeof(cols),0,(struct sockaddr *)&client_addr,sizeof(client_addr));
-      sendto(client_fd,&lines,sizeof(lines),0,(struct sockaddr *)&client_addr,sizeof(client_addr));
-      for(int i=0;i<lines;i++)
-      {
-        for(int j=0;j<cols+1;j++)
-        {
-          sendto(client_fd,&board_geral[i][j],sizeof(char),0,(struct sockaddr*)&client_addr,sizeof(client_addr));
-        }
-      }
-      n_players++;
-      clients[n_players] = client_fd;
-      all_clients_addr[n_players] = client_addr;
-      player_pacmans[n_players].ID = n_players;
-      //Testing only
-      player_pacmans[n_players].x = 0;
-      player_pacmans[n_players].y = 2;
-    }
-  }
-
+  //Thread for connections
 
 
   printf("test1\n");
-  printf("%d\n",player_pacmans[n_players].y);
   //Parent process
     while(!done)
     {
@@ -81,21 +53,28 @@ int main(int agrc, char *argv[])
         {
           done = SDL_TRUE;
         }
+        //pthread_create(&connections,NULL,new_connections,&first_connect);
+        if((client_fd = accept4(first_connect.sock_fd,(struct sockaddr*)&first_connect.client_addr,&first_connect.addr_len,SOCK_NONBLOCK))>0)
+        {
+          new_connections(client_fd);
+        }
+        printf("%d\n",n_players);
         for(int i=0;i<n_players;i++)
         {
           for(int j=0;j<n_players;j++)
           {
             sendto(clients[i],&player_pacmans[j],sizeof(Player_ID),0,(struct sockaddr*)&all_clients_addr[i],sizeof(all_clients_addr[i]));
+            printf("segfault aqui\n");
           }
         }
         for(int i=0;i<n_players;i++)
         {
-          recvfrom(sock_fd,&player_pacmans[i],sizeof(Player_ID),0,(struct sockaddr*)&client_addr,&addr_len);
+          recvfrom(first_connect.sock_fd,&player_pacmans[i],sizeof(Player_ID),0,(struct sockaddr*)&first_connect.client_addr,&first_connect.addr_len);
         }
+          //pthread_join(connections,NULL);
       }
     }
   close_board_windows();
-  kill(child,SIGKILL);
   exit(0);
 }
 
@@ -168,3 +147,22 @@ char** initialize_map(int *cols, int *lines,int *n_playersmax)
 
 }
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+void new_connections(int client_fd)
+{
+    sendto(client_fd,&first_connect.cols,sizeof(int),0,(struct sockaddr *)&first_connect.client_addr,sizeof(first_connect.client_addr));
+    sendto(client_fd,&first_connect.lines,sizeof(int),0,(struct sockaddr *)&first_connect.client_addr,sizeof(first_connect.client_addr));
+    for(int i=0;i<first_connect.lines;i++)
+    {
+      for(int j=0;j<first_connect.cols+1;j++)
+      {
+        sendto(client_fd,&first_connect.board_geral[i][j],sizeof(char),0,(struct sockaddr*)&first_connect.client_addr,sizeof(first_connect.client_addr));
+      }
+    }
+    n_players++;
+    clients[n_players] = client_fd;
+    all_clients_addr[n_players] = first_connect.client_addr;
+    player_pacmans[n_players].ID = n_players;
+    //Testing only
+    player_pacmans[n_players].x = 0;
+    player_pacmans[n_players].y = 2;
+}
