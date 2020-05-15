@@ -311,7 +311,7 @@ char** initialize_fruits(int cols, int lines,int n_players, char** board)
     l = rand() % lines;
     c = rand() % cols;
     r = rand() % 1;
-    if (board[c][l] != 'B')
+    if (board[c][l] == ' ')
     {
       if (r=1)
       {
@@ -325,6 +325,30 @@ char** initialize_fruits(int cols, int lines,int n_players, char** board)
         paint_lemon(c,l , 255, 255, 0);
         i++;
       }
+    }
+  }
+  return board;
+}
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+char** update_fruits(int cols, int lines, char** board)
+{
+  srand(time(NULL));
+  l = rand() % lines;
+  c = rand() % cols;
+  r = rand() % 1;
+  if (board[c][l] == ' ')
+  {
+    if (r=1)
+    {
+      board[c][l] = 'C';
+      paint_cherry(c,l , 255, 0, 0);
+      i++;
+    }
+    else
+    {
+      board[c][l] = 'L';
+      paint_lemon(c,l , 255, 255, 0);
+      i++;
     }
   }
   return board;
