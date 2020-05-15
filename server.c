@@ -44,7 +44,7 @@ int main(int agrc, char *argv[])
 
   //Mudar para thread
   int child;
-  if(child = fork() == 0)
+  if((child = fork()) == 0)
   {
     while(1)
     {

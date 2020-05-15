@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
+#include <time.h>
 #include "client.h"
 #include "UI_library.h"
 
@@ -135,7 +136,7 @@ int main(int argc, char *argv[])
                 {
                   mon_vertical_move = 1;
                 }
-                else if (board_geral[monster_local.x][monster_local.y+1]=='B' && board_geral[monster_local.x][monster_local.y-1]!='B') 
+                else if (board_geral[monster_local.x][monster_local.y+1]=='B' && board_geral[monster_local.x][monster_local.y-1]!='B')
                 {
                   mon_vertical_move = -1;
                 }
@@ -298,5 +299,34 @@ void update_map(Player *pacmans,int n_players)
   {
     paint_pacman(pacmans[i].x,pacmans[i].y,255,255,0);
   }
+}
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+char** initialize_fruits(int cols, int lines,int n_players, char** board)
+{
+  srand(time(NULL));
+  int i = 0, l = 0, c = 0, r= 0;
+
+  while (i<((n_players-1)*2))
+  {
+    l = rand() % lines;
+    c = rand() % cols;
+    r = rand() % 1;
+    if (board[c][l] != 'B')
+    {
+      if (r=1)
+      {
+        board[c][l] = 'C';
+        paint_cherry(c,l , 255, 0, 0);
+        i++;
+      }
+      else
+      {
+        board[c][l] = 'L';
+        paint_lemon(c,l , 255, 255, 0);
+        i++;
+      }
+    }
+  }
+  return board;
 }
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
