@@ -24,4 +24,5 @@ typedef struct new_connect
 
 void server_start(struct sockaddr_in local_addr, int sock_fd);
 char** initialize_map(int *cols, int *lines, int *n_playersmax);
+char** initialize_fruits(int cols, int lines,int n_players, char** board);
 void new_connections(int client_fd);
