@@ -9,7 +9,6 @@
 #include <signal.h>
 #include <pthread.h>
 #include <SDL2/SDL.h>
-#include "server_novo.h"
 #include "UI_library.h"
 
 typedef struct Player_ID
@@ -22,4 +21,7 @@ typedef struct Player_ID
 
 void server_start(int sock_fd);
 char** initialize_map(int *cols, int *lines, int *n_playersmax);
-Player_ID set_info(int *colour, int id)
+Player_ID set_info(int *colour, int id);
+void *game(void*);
+int check_interaction(int *coord);
+void send_info();

@@ -1,4 +1,6 @@
+#ifndef SERVER_LIBRARY_H
 #include "server_novo.h"
+#endif
 
 struct sockaddr_in local_addr,client_addr;
 int n_players;
@@ -25,7 +27,7 @@ void server_start(int sock_fd)
 }
 char** initialize_map(int *cols, int *lines,int *n_playersmax)
 {
-  int n_lines, n_cols,n_walls;
+  int n_lines, n_cols,n_walls=0;
   //Map file
   FILE *map;
 
@@ -38,7 +40,6 @@ char** initialize_map(int *cols, int *lines,int *n_playersmax)
   {
     board[i] = malloc (sizeof(char) * (n_cols+1));
   }
-  create_board_window(n_cols, n_lines);
 
   //Receber posições das paredes
   for(int i=0;i<n_lines;i++)
@@ -48,24 +49,10 @@ char** initialize_map(int *cols, int *lines,int *n_playersmax)
       board[i][j]=fgetc(map);
     }
   }
-
-  //Preencher paredes
-  for(int y=0;y<n_lines;y++)
-  {
-    for(int x=0;x<n_cols+1;x++)
-    {
-      //printf("|>%c<|",board[y][x]);
-      if(board[y][x] == 'B')
-      {
-        paint_brick(x,y);
-        n_walls++;
-      }
-    }
-    //printf("\n");
-  }
   *cols = n_cols;
   *lines = n_lines;
-  *n_playersmax = (n_lines*n_cols)-n_walls;
+  printf("%d\n",n_walls);
+  *n_playersmax = ((n_lines*n_cols)-n_walls)/2;
   return board;
 }
 //Changes to list format
@@ -73,8 +60,10 @@ Player_ID set_info(int *colour, int id)
 {
   Player_ID new_player;
   for(int i=0;i<3;i++)
-  new_player.colour[i]=colour[i];
-  new_player.id = id;
+  {
+    new_player.colour[i]=colour[i];
+    new_player.id = id;
+  }
 
   return new_player;
 }
@@ -91,20 +80,18 @@ void *game(void* client)
     if(read(player.sock,&coord,sizeof(coord))>0)
     {
       printf("recieved coordinates: %d %d\n",coord[0],coord[1]);
-      //Check interactions and get response
-
-      while(SDL_PollEvent(&event))
-      {
-        if(event.type == SDL_QUIT)
-          done = SDL_TRUE;
-        //draw interactions server side and
-        //use send_info to send shit to clients
-      }
+      //int resp = check_interaction(coord);
+      SDL_PollEvent(&event);
+      //May go to switch case
+      if(event.type == SDL_QUIT)
+        done = SDL_TRUE;
+      //draw interactions server side and
+      //use send_info to send shit to clients
     }
   }
   pthread_exit(NULL);
 }
 void send_info()
 {
-  //Send update to all clients
+  printf("fuck you\n");
 }

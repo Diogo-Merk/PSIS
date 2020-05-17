@@ -51,8 +51,8 @@ int main(int argc, char *argv[])
   //Connecting to server
   connect_server(ip_addr,port,local_addr,server_addr,sock_fd);
   size_server_addr = sizeof(struct sockaddr_storage);
-  recvfrom(sock_fd,&cols,sizeof(cols),0,(struct sockaddr *)&server_addr,&size_server_addr);
-  recvfrom(sock_fd,&lines,sizeof(lines),0,(struct sockaddr *)&server_addr,&size_server_addr);
+  read(sock_fd,&cols,sizeof(int));
+  read(sock_fd,&lines,sizeof(int));
   printf("%d %d\n",cols,lines);
   board_geral = malloc(sizeof(char *) * lines);
   for ( int i = 0 ; i < lines; i++)
@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
   {
     for(int j=0;j<cols+1;j++)
     {
-      recvfrom(sock_fd,&board_geral[i][j],sizeof(char),0,(struct sockaddr*)&server_addr,&size_server_addr);
+      read(sock_fd,&board_geral[i][j],sizeof(char));
     }
   }
   printf("Board kinda good\n");
@@ -79,16 +79,8 @@ int main(int argc, char *argv[])
       {
         done = SDL_TRUE;
       }
-      //recieving number of players
-      recvfrom(sock_fd,&n_players,sizeof(int),0,(struct sockaddr*)&server_addr,&size_server_addr);
-      pacman_others = malloc(sizeof(Player)*n_players);
-      printf("recieving\n");
 
       //recieving player positions
-      for ( int i=0;i<n_players;i++)
-      {
-        recvfrom(sock_fd,&pacman_others[i],sizeof(Player),0,(struct sockaddr*)&server_addr,&size_server_addr);
-      }
 
       //Movement
       switch( event.type )
@@ -245,10 +237,7 @@ int main(int argc, char *argv[])
       pacman_local.x += pac_horizontal_move;
       pacman_local.y += pac_vertical_move;
       //Send info
-      update_map(pacman_others,n_players);
       printf("Is it working?\n");
-      sendto(sock_fd,&pacman_local,sizeof(Player),0,(struct sockaddr*)&server_addr,sizeof(server_addr));
-      free(pacman_others);
     }
   }
   close_board_windows();
@@ -297,6 +286,35 @@ void update_map(Player *pacmans,int n_players)
   {
     paint_pacman(pacmans[i].x,pacmans[i].y,255,255,0);
   }
+}
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+char** initialize_fruits(int cols, int lines,int n_players, char** board)
+{
+  srand(time(NULL));
+  int i = 0, l = 0, c = 0, r= 0;
+
+  while (i<((n_players-1)*2))
+  {
+    l = rand() % lines;
+    c = rand() % cols;
+    r = rand() % 1;
+    if (board[c][l] == ' ')
+    {
+      if (r==1)
+      {
+        board[c][l] = 'C';
+        paint_cherry(c,l);
+        i++;
+      }
+      else
+      {
+        board[c][l] = 'L';
+        paint_lemon(c,l);
+        i++;
+      }
+    }
+  }
+  return board;
 }
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 char** update_fruits(int cols, int lines, char** board)
