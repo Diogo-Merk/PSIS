@@ -244,6 +244,41 @@ int main(int argc, char *argv[])
       monster_local.y += mon_vertical_move;
       pacman_local.x += pac_horizontal_move;
       pacman_local.y += pac_vertical_move;
+
+      //condicoes de teleporte
+      /*if (monster_local.x>=n_cols)
+      {
+        monster_local.x = 0;
+      }
+      if (monster_local.x<0)
+      {
+        monster_local.x = n_cols-1;
+      }
+      if (monster_local.y>=n_lines)
+      {
+        monster_local.y = 0;
+      }
+      if (monster_local.y<0)
+      {
+        monster_local.y = n_lines-1;
+      }
+      if (pacman_local.x>=n_cols)
+      {
+        pacman_local.x = 0;
+      }
+      if (pacman_local.x<0)
+      {
+        pacman_local.x = n_cols-1;
+      }
+      if (pacman_local.y>=n_lines)
+      {
+        pacman_local.y = 0;
+      }
+      if (pacman_local.y<0)
+      {
+        pacman_local.y = n_lines-1;
+      }*/
+
       //Send info
       update_map(pacman_others,n_players);
       printf("Is it working?\n");
