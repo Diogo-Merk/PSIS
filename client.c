@@ -31,6 +31,7 @@ int main(int argc, char *argv[])
   int pac_horizontal_move = 0, pac_vertical_move = 0, mon_horizontal_move = 0, mon_vertical_move = 0, xaux = 0, yaux = 0;
   Player pacman_local, monster_local;
   Player *pacman_others;
+  int coord[2];
 
   //Testing argc
   if(argc < 3)
@@ -51,20 +52,19 @@ int main(int argc, char *argv[])
   //Connecting to server
   connect_server(ip_addr,port,local_addr,server_addr,sock_fd);
   size_server_addr = sizeof(struct sockaddr_storage);
-  recvfrom(sock_fd,&cols,sizeof(cols),0,(struct sockaddr *)&server_addr,&size_server_addr);
-  recvfrom(sock_fd,&lines,sizeof(lines),0,(struct sockaddr *)&server_addr,&size_server_addr);
+  read(sock_fd,&cols,sizeof(int));
+  read(sock_fd,&lines,sizeof(int));
   printf("%d %d\n",cols,lines);
   board_geral = malloc(sizeof(char *) * lines);
   for ( int i = 0 ; i < lines; i++)
   {
     board_geral[i] = malloc (sizeof(char) * (cols+1));
   }
-
   for(int i=0;i<lines;i++)
   {
     for(int j=0;j<cols+1;j++)
     {
-      recvfrom(sock_fd,&board_geral[i][j],sizeof(char),0,(struct sockaddr*)&server_addr,&size_server_addr);
+      read(sock_fd,&board_geral[i][j],sizeof(char));
     }
   }
   printf("Board kinda good\n");
@@ -79,17 +79,11 @@ int main(int argc, char *argv[])
       {
         done = SDL_TRUE;
       }
-      //recieving number of players
-      recvfrom(sock_fd,&n_players,sizeof(int),0,(struct sockaddr*)&server_addr,&size_server_addr);
-      pacman_others = malloc(sizeof(Player)*n_players);
-      printf("recieving\n");
 
       //recieving player positions
-      for ( int i=0;i<n_players;i++)
-      {
-        recvfrom(sock_fd,&pacman_others[i],sizeof(Player),0,(struct sockaddr*)&server_addr,&size_server_addr);
-      }
-
+      read(sock_fd,&coord,sizeof(coord));
+      printf("recieved %d %d\n",coord[0],coord[1] );
+      update_map(coord[0],coord[1],n_players);
       //Movement
       switch( event.type )
       {
@@ -280,10 +274,10 @@ int main(int argc, char *argv[])
       }*/
 
       //Send info
-      update_map(pacman_others,n_players);
+      pacman_local.x = coord[0];
+      pacman_local.y = coord[1];
+      write(sock_fd,&coord,sizeof(coord));
       printf("Is it working?\n");
-      sendto(sock_fd,&pacman_local,sizeof(Player),0,(struct sockaddr*)&server_addr,sizeof(server_addr));
-      free(pacman_others);
     }
   }
   close_board_windows();
@@ -325,13 +319,39 @@ void initialize_map(int n_cols, int n_lines, char **board_geral)
   }
 }
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-void update_map(Player *pacmans,int n_players)
+void update_map(int x,int y,int n_players)
 {
-  printf("updating\n");
-  for(int i=0;i<n_players;i++)
+    printf("%d %d\n",x, y);
+    paint_pacman(x,y,0,0,0);
+}
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+char** initialize_fruits(int cols, int lines,int n_players, char** board)
+{
+  srand(time(NULL));
+  int i = 0, l = 0, c = 0, r= 0;
+
+  while (i<((n_players-1)*2))
   {
-    paint_pacman(pacmans[i].x,pacmans[i].y,255,255,0);
+    l = rand() % lines;
+    c = rand() % cols;
+    r = rand() % 1;
+    if (board[c][l] == ' ')
+    {
+      if (r==1)
+      {
+        board[c][l] = 'C';
+        paint_cherry(c,l);
+        i++;
+      }
+      else
+      {
+        board[c][l] = 'L';
+        paint_lemon(c,l);
+        i++;
+      }
+    }
   }
+  return board;
 }
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 char** update_fruits(int cols, int lines, char** board)
