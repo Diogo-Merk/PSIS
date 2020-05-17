@@ -48,8 +48,6 @@ int main(int argc, char *argv[])
     printf("Port is not a number");
     exit(-1);
   }
-  printf("%s\n",ip_addr);
-  printf("%d\n",port );
   //Connecting to server
   connect_server(ip_addr,port,local_addr,server_addr,sock_fd);
   size_server_addr = sizeof(struct sockaddr_storage);

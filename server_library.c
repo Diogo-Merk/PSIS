@@ -91,11 +91,14 @@ void *game(void* client)
     if(read(player.sock,&coord,sizeof(coord))>0)
     {
       printf("recieved coordinates: %d %d\n",coord[0],coord[1]);
+      //Check interactions and get response
 
       while(SDL_PollEvent(&event))
       {
         if(event.type == SDL_QUIT)
           done = SDL_TRUE;
+        //draw interactions server side and
+        //use send_info to send shit to clients
       }
     }
   }
@@ -103,5 +106,5 @@ void *game(void* client)
 }
 void send_info()
 {
-
+  //Send update to all clients
 }
