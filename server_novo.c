@@ -11,11 +11,11 @@ int main()
   pthread_t client_connect;
   Player_ID clients;
   char **board_geral;
-    SDL_Event event;
+  SDL_Event event;
 
   server_start(sock_fd);
   board_geral = initialize_map(&cols,&lines,&n_playersmax);
-  printf("%d\n",n_playersmax);
+  printf("players max %d\n",n_playersmax);
   while(n_players < n_playersmax)
   {
     client_sock = accept(sock_fd,NULL,NULL);
@@ -26,7 +26,7 @@ int main()
       read(client_sock,&colour[i],sizeof(int));
     }*/
     //Changes
-    //clients = set_info(colour,n_players);
+    clients = set_info(colour,n_players,client_sock);
     //sending map size
     write(client_sock,&cols,sizeof(int));
     write(client_sock,&lines,sizeof(int));

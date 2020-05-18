@@ -49,33 +49,50 @@ char** initialize_map(int *cols, int *lines,int *n_playersmax)
       board[i][j]=fgetc(map);
     }
   }
+  for(int y=0;y<n_lines;y++)
+  {
+    for(int x=0;x<n_cols+1;x++)
+    {
+      //printf("|>%c<|",board[y][x]);
+      if(board[y][x] == 'B')
+      {
+        n_walls++;
+      }
+    }
+    //printf("\n");
+  }
   *cols = n_cols;
   *lines = n_lines;
-  printf("%d\n",n_walls);
+  printf("number walls %d\n",n_walls);
   *n_playersmax = ((n_lines*n_cols)-n_walls)/2;
   return board;
 }
 //Changes to list format
-Player_ID set_info(int *colour, int id)
+Player_ID set_info(int *colour, int id,int sock)
 {
   Player_ID new_player;
   for(int i=0;i<3;i++)
   {
-    new_player.colour[i]=colour[i];
-    new_player.id = id;
+    //new_player.colour[i]=colour[i];
+
   }
+    new_player.id = id;
+    new_player.sock = sock;
 
   return new_player;
 }
 void *game(void* client)
 {
   int done = 0;
-  int *coord;
-  coord = malloc(sizeof(int)*2);
+  int coord[2];
+  int *rand;
   SDL_Event event;
   Player_ID player = *(Player_ID*) client;
   n_players = player.n_players;
-  coord = random_coord();
+  rand = random_coord();
+  coord[0] = rand[0];
+  coord[1] = rand[1];
+  write(player.sock,&coord,sizeof(coord));
 
   while(!done)
   {
@@ -99,6 +116,7 @@ void *game(void* client)
         default:
           break;
       }
+
       //draw interactions server side and
       //use send_info to send shit to clients
     }
@@ -109,7 +127,7 @@ void send_info()
 {
   printf("fuck you\n");
 }
-int check_interaction(int *coord)
+int check_interaction(int coord[2])
 {
     int i=coord[0];
     int j=coord[1];

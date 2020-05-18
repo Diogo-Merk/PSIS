@@ -60,7 +60,6 @@ int main(int argc, char *argv[])
   {
     board_geral[i] = malloc (sizeof(char) * (cols+1));
   }
-
   for(int i=0;i<lines;i++)
   {
     for(int j=0;j<cols+1;j++)
@@ -83,7 +82,8 @@ int main(int argc, char *argv[])
 
       //recieving player positions
       read(sock_fd,&coord,sizeof(coord));
-      update_map();
+      printf("recieved %d %d\n",coord[0],coord[1] );
+      update_map(coord[0],coord[1],n_players);
       //Movement
       switch( event.type )
       {
@@ -284,9 +284,10 @@ void initialize_map(int n_cols, int n_lines, char **board_geral)
   }
 }
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-void update_map(int *coord,int n_players)
+void update_map(int x,int y,int n_players)
 {
-    paint_pacman(coord[0],coords[1],255,255,0);
+    printf("%d %d\n",x, y);
+    paint_pacman(x,y,0,0,0);
 }
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 char** initialize_fruits(int cols, int lines,int n_players, char** board)
