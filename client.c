@@ -170,35 +170,35 @@ int main(int argc, char *argv[])
               if( event.button.button == SDL_BUTTON_LEFT)
               {
                 SDL_GetMouseState(&xaux, &yaux);
-                if (xaux>pacman_local.x && yaux < xaux && yaux > -xaux && board_geral[pacman_local.x+1][pacman_local.y]!='B')
+                if (xaux>coord[0] && yaux < xaux && yaux > -xaux && board_geral[coord[0]+1][coord[1]]!='B')
                 {
                   pac_horizontal_move = 1;
                 }
-                else if (board_geral[pacman_local.x+1][pacman_local.y]=='B' && board_geral[pacman_local.x-1][pacman_local.y]!='B')
+                else if (board_geral[coord[0]+1][coord[1]]=='B' && board_geral[coord[0]-1][coord[1]]!='B')
                 {
                   pac_horizontal_move = -1;
                 }
-                if (xaux<pacman_local.x && yaux > xaux && yaux < -xaux && board_geral[pacman_local.x-1][pacman_local.y]!='B')
+                if (xaux<coord[0] && yaux > xaux && yaux < -xaux && board_geral[coord[0]-1][coord[1]]!='B')
                 {
                   pac_horizontal_move = -1;
                 }
-                else if (board_geral[pacman_local.x-1][pacman_local.y]=='B' && board_geral[pacman_local.x+1][pacman_local.y]!='B')
+                else if (board_geral[coord[0]-1][coord[1]]=='B' && board_geral[coord[0]+1][coord[1]]!='B')
                 {
                   pac_horizontal_move = 1;
                 }
-                if (yaux>pacman_local.y && yaux > xaux && yaux > -xaux && board_geral[pacman_local.x][pacman_local.y+1]!='B')
+                if (yaux>coord[1] && yaux > xaux && yaux > -xaux && board_geral[coord[0]][coord[1]+1]!='B')
                 {
                   pac_vertical_move = 1;
                 }
-                else if (board_geral[pacman_local.x][pacman_local.y+1]=='B' && board_geral[pacman_local.x][pacman_local.y-1]!='B')
+                else if (board_geral[coord[0]][coord[1]+1]=='B' && board_geral[coord[0]][coord[1]-1]!='B')
                 {
                   pac_vertical_move = -1;
                 }
-                if (yaux>pacman_local.y && yaux < xaux && yaux < -xaux && board_geral[pacman_local.x][pacman_local.y-1]!='B')
+                if (yaux>coord[1] && yaux < xaux && yaux < -xaux && board_geral[coord[0]][coord[1]-1]!='B')
                 {
                   pac_vertical_move = -1;
                 }
-                else if (board_geral[pacman_local.x][pacman_local.y-1]=='B' && board_geral[pacman_local.x-1][pacman_local.y+1]!='B')
+                else if (board_geral[coord[0]][coord[1]-1]=='B' && board_geral[coord[0]-1][coord[1]+1]!='B')
                 {
                   pac_vertical_move = 1;
                 }
@@ -236,8 +236,8 @@ int main(int argc, char *argv[])
       //Update position
       monster_local.x += mon_horizontal_move;
       monster_local.y += mon_vertical_move;
-      pacman_local.x += pac_horizontal_move;
-      pacman_local.y += pac_vertical_move;
+      coord[0] += pac_horizontal_move;
+      coord[1] += pac_vertical_move;
 
       //condicoes de teleporte
       /*if (monster_local.x>=n_cols)
@@ -256,26 +256,24 @@ int main(int argc, char *argv[])
       {
         monster_local.y = n_lines-1;
       }
-      if (pacman_local.x>=n_cols)
+      if (coord[0]>=n_cols)
       {
-        pacman_local.x = 0;
+        coord[0] = 0;
       }
-      if (pacman_local.x<0)
+      if (coord[0]<0)
       {
-        pacman_local.x = n_cols-1;
+        coord[0] = n_cols-1;
       }
-      if (pacman_local.y>=n_lines)
+      if (coord[1]>=n_lines)
       {
-        pacman_local.y = 0;
+        coord[1] = 0;
       }
-      if (pacman_local.y<0)
+      if (coord[1]<0)
       {
-        pacman_local.y = n_lines-1;
+        coord[1] = n_lines-1;
       }*/
 
       //Send info
-      pacman_local.x = coord[0];
-      pacman_local.y = coord[1];
       write(sock_fd,&coord,sizeof(coord));
       printf("Is it working?\n");
     }
