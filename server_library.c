@@ -3,7 +3,7 @@
 #endif
 
 struct sockaddr_in local_addr,client_addr;
-int n_players;
+int n_players,n_lines,n_cols;
 char **board;
 Player_ID *all_players;
 
@@ -27,7 +27,7 @@ void server_start(int sock_fd)
 }
 char** initialize_map(int *cols, int *lines,int *n_playersmax)
 {
-  int n_lines, n_cols,n_walls=0;
+  int n_walls=0;
   //Map file
   FILE *map;
 
@@ -70,21 +70,35 @@ Player_ID set_info(int *colour, int id)
 void *game(void* client)
 {
   int done = 0;
-  int coord[2];
+  int *coord;
+  coord = malloc(sizeof(int)*2);
   SDL_Event event;
   Player_ID player = *(Player_ID*) client;
   n_players = player.n_players;
+  coord = random_coord();
 
   while(!done)
   {
     if(read(player.sock,&coord,sizeof(coord))>0)
     {
       printf("recieved coordinates: %d %d\n",coord[0],coord[1]);
-      //int resp = check_interaction(coord);
+      int resp = check_interaction(coord);
       SDL_PollEvent(&event);
       //May go to switch case
       if(event.type == SDL_QUIT)
         done = SDL_TRUE;
+      switch (resp)
+      {
+        case 1:
+          //ingnores plays
+          break;
+        case 2:
+          write(player.sock,&coord,sizeof(coord));
+          break;
+
+        default:
+          break;
+      }
       //draw interactions server side and
       //use send_info to send shit to clients
     }
@@ -94,4 +108,25 @@ void *game(void* client)
 void send_info()
 {
   printf("fuck you\n");
+}
+int check_interaction(int *coord)
+{
+    int i=coord[0];
+    int j=coord[1];
+    if(board[i][j] == 'B')
+      return 1;
+    else if(board[i][j] == ' ')
+      return 2;
+}
+int *random_coord()
+{
+  int *coord;
+  coord = malloc(sizeof(int)*2);
+  coord[0] = random()%n_lines;
+  coord[1] = random()%n_cols;
+  if(board[coord[0]][coord[1]] == 'B')
+  {
+    coord = random_coord();
+  }
+  return coord;
 }

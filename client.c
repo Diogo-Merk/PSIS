@@ -31,6 +31,7 @@ int main(int argc, char *argv[])
   int pac_horizontal_move = 0, pac_vertical_move = 0, mon_horizontal_move = 0, mon_vertical_move = 0, xaux = 0, yaux = 0;
   Player pacman_local, monster_local;
   Player *pacman_others;
+  int coord[2];
 
   //Testing argc
   if(argc < 3)
@@ -81,7 +82,8 @@ int main(int argc, char *argv[])
       }
 
       //recieving player positions
-
+      read(sock_fd,&coord,sizeof(coord));
+      update_map();
       //Movement
       switch( event.type )
       {
@@ -237,6 +239,9 @@ int main(int argc, char *argv[])
       pacman_local.x += pac_horizontal_move;
       pacman_local.y += pac_vertical_move;
       //Send info
+      pacman_local.x = coord[0];
+      pacman_local.y = coord[1];
+      write(sock_fd,&coord,sizeof(coord));
       printf("Is it working?\n");
     }
   }
@@ -279,13 +284,9 @@ void initialize_map(int n_cols, int n_lines, char **board_geral)
   }
 }
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-void update_map(Player *pacmans,int n_players)
+void update_map(int *coord,int n_players)
 {
-  printf("updating\n");
-  for(int i=0;i<n_players;i++)
-  {
-    paint_pacman(pacmans[i].x,pacmans[i].y,255,255,0);
-  }
+    paint_pacman(coord[0],coords[1],255,255,0);
 }
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 char** initialize_fruits(int cols, int lines,int n_players, char** board)

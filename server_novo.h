@@ -25,3 +25,4 @@ Player_ID set_info(int *colour, int id);
 void *game(void*);
 int check_interaction(int *coord);
 void send_info();
+int *random_coord();
