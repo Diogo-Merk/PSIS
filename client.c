@@ -32,6 +32,8 @@ int main(int argc, char *argv[])
   Player pacman_local, monster_local;
   Player *pacman_others;
   int coord[2];
+  int last_coord[2];
+  last_coord[0] = -1;
 
   //Testing argc
   if(argc < 3)
@@ -83,7 +85,9 @@ int main(int argc, char *argv[])
       //recieving player positions
       read(sock_fd,&coord,sizeof(coord));
       printf("recieved %d %d\n",coord[0],coord[1] );
-      update_map(coord[0],coord[1],n_players);
+      update_map(coord[0],coord[1],last_coord[0],last_coord[1],n_players);
+      last_coord[0] = coord[0];
+      last_coord[1] = coord[1];
       //Movement
       switch( event.type )
       {
@@ -94,41 +98,41 @@ int main(int argc, char *argv[])
             switch( event.key.keysym.sym )
             {
               case SDLK_LEFT:
-                if (board_geral[monster_local.x-1][monster_local.y]!='B')
+                if (board_geral[coord[0]-1][coord[1]]!='B')
                 {
                   mon_horizontal_move = -1;
                 }
-                else if (board_geral[monster_local.x-1][monster_local.y]=='B' && board_geral[monster_local.x+1][monster_local.y]!='B')
+                else if (board_geral[coord[0]-1][coord[1]]=='B' && board_geral[coord[0]+1][coord[1]]!='B')
                 {
                   mon_horizontal_move = 1;
                 }
                 break;
               case SDLK_RIGHT:
-                if (board_geral[monster_local.x+1][monster_local.y]!='B')
+                if (board_geral[coord[0]+1][coord[1]]!='B')
                 {
                   mon_horizontal_move = 1;
                 }
-                else if (board_geral[monster_local.x+1][monster_local.y]=='B' && board_geral[monster_local.x-1][monster_local.y]!='B')
+                else if (board_geral[coord[0]+1][coord[1]]=='B' && board_geral[coord[0]-1][coord[1]]!='B')
                 {
                   mon_horizontal_move = -1;
                 }
                 break;
               case SDLK_UP:
-                if (board_geral[monster_local.x][monster_local.y-1]!='B')
+                if (board_geral[coord[0]][coord[1]-1]!='B')
                 {
                   mon_vertical_move = -1;
                 }
-                else if (board_geral[monster_local.x][monster_local.y-1]=='B' && board_geral[monster_local.x][monster_local.y+1]!='B')
+                else if (board_geral[coord[0]][coord[1]-1]=='B' && board_geral[coord[0]][coord[1]+1]!='B')
                 {
                   mon_vertical_move = 1;
                 }
                 break;
               case SDLK_DOWN:
-                if (board_geral[monster_local.x][monster_local.y+1]!='B')
+                if (board_geral[coord[0]][coord[1]+1]!='B')
                 {
                   mon_vertical_move = 1;
                 }
-                else if (board_geral[monster_local.x][monster_local.y+1]=='B' && board_geral[monster_local.x][monster_local.y-1]!='B')
+                else if (board_geral[coord[0]][coord[1]+1]=='B' && board_geral[coord[0]][coord[1]-1]!='B')
                 {
                   mon_vertical_move = -1;
                 }
@@ -234,27 +238,27 @@ int main(int argc, char *argv[])
             break;
         }
       //Update position
-      monster_local.x += mon_horizontal_move;
-      monster_local.y += mon_vertical_move;
-      coord[0] += pac_horizontal_move;
-      coord[1] += pac_vertical_move;
+      coord[0] += mon_horizontal_move;
+      coord[1] += mon_vertical_move;
+      //coord[0] += pac_horizontal_move;
+      //coord[1] += pac_vertical_move;
 
       //condicoes de teleporte
-      /*if (monster_local.x>=n_cols)
+      /*if (coord[0]>=n_cols)
       {
-        monster_local.x = 0;
+        coord[0] = 0;
       }
-      if (monster_local.x<0)
+      if (coord[0]<0)
       {
-        monster_local.x = n_cols-1;
+        coord[0] = n_cols-1;
       }
-      if (monster_local.y>=n_lines)
+      if (coord[1]>=n_lines)
       {
-        monster_local.y = 0;
+        coord[1] = 0;
       }
-      if (monster_local.y<0)
+      if (coord[1]<0)
       {
-        monster_local.y = n_lines-1;
+        coord[1] = n_lines-1;
       }
       if (coord[0]>=n_cols)
       {
@@ -317,10 +321,11 @@ void initialize_map(int n_cols, int n_lines, char **board_geral)
   }
 }
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-void update_map(int x,int y,int n_players)
+void update_map(int x,int y,int last_x,int last_y,int n_players)
 {
-    printf("%d %d\n",x, y);
-    paint_pacman(x,y,0,0,0);
+  if(last_x != -1)
+    clear_place(last_x,last_y);
+  paint_pacman(x,y,255,255,0);
 }
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 char** initialize_fruits(int cols, int lines,int n_players, char** board)
