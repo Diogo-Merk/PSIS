@@ -31,9 +31,9 @@ int main()
     write(client_sock,&cols,sizeof(int));
     write(client_sock,&lines,sizeof(int));
     //sending board
-    for(int i=0;i< lines;i++)
+    for(int i=0;i< cols;i++)
     {
-      for(int j=0;j<cols+1;j++)
+      for(int j=0;j<lines;j++)
       {
         write(client_sock,&board_geral[i][j],sizeof(char));
       }

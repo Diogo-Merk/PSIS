@@ -35,26 +35,28 @@ char** initialize_map(int *cols, int *lines,int *n_playersmax)
 
   fscanf(map,"%d %d",&n_cols,&n_lines);
   fgetc(map);
-  board = malloc(sizeof(char *) * n_lines);
-  for ( int i = 0 ; i < n_lines; i++)
+  board = malloc(sizeof(char *) * n_cols);
+  for ( int i = 0 ; i < n_cols; i++)
   {
-    board[i] = malloc (sizeof(char) * (n_cols+1));
+    board[i] = malloc (sizeof(char) * (n_lines));
   }
 
   //Receber posições das paredes
   for(int i=0;i<n_lines;i++)
   {
-    for(int j=0;j<n_cols+1;j++)
+    for(int j=0;j<n_cols;j++)
     {
-      board[i][j]=fgetc(map);
+      board[j][i]=fgetc(map);
     }
+    fgetc(map);
   }
-  for(int y=0;y<n_lines;y++)
+
+  for(int x=0;x<n_cols;x++)
   {
-    for(int x=0;x<n_cols+1;x++)
+    for(int y=0;y<n_lines;y++)
     {
       //printf("|>%c<|",board[y][x]);
-      if(board[y][x] == 'B')
+      if(board[x][y] == 'B')
       {
         n_walls++;
       }
@@ -84,7 +86,7 @@ Player_ID set_info(int *colour, int id,int sock)
 void *game(void* client)
 {
   int done = 0;
-  int coord[2];
+  int coord[2],last_coord[2];
   int *rand;
   SDL_Event event;
   Player_ID player = *(Player_ID*) client;
@@ -107,7 +109,7 @@ void *game(void* client)
       switch (resp)
       {
         case 1:
-          //ingnores plays
+          write(player.sock,&last_coord,sizeof(last_coord));
           break;
         case 2:
           write(player.sock,&coord,sizeof(coord));
@@ -116,7 +118,8 @@ void *game(void* client)
         default:
           break;
       }
-
+      last_coord[0] = coord[0];
+      last_coord[1] = coord[1];
       //draw interactions server side and
       //use send_info to send shit to clients
     }
@@ -131,7 +134,7 @@ int check_interaction(int coord[2])
 {
     int i=coord[0];
     int j=coord[1];
-    if(board[i][j] == 'B')
+    if(board[i][j] == 'B' || i<0 || j<0 || i > n_lines || j > n_cols)
       return 1;
     else if(board[i][j] == ' ')
       return 2;
@@ -140,8 +143,8 @@ int *random_coord()
 {
   int *coord;
   coord = malloc(sizeof(int)*2);
-  coord[0] = random()%n_lines;
-  coord[1] = random()%n_cols;
+  coord[0] = random()%n_cols;
+  coord[1] = random()%n_lines;
   if(board[coord[0]][coord[1]] == 'B')
   {
     coord = random_coord();

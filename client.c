@@ -1,16 +1,8 @@
-#include <sys/socket.h>
-#include <sys/un.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <arpa/inet.h>
-#include <netinet/in.h>
-#include <time.h>
+#ifndef SERVER_LIBRARY_H
 #include "client.h"
-#include "UI_library.h"
+#endif
 
-#define MAXIP 20
+
 //https://github.com/Diogo-Merk/PSIS.git
 
 int main(int argc, char *argv[])
@@ -21,7 +13,6 @@ int main(int argc, char *argv[])
   struct sockaddr_in local_addr;
   struct sockaddr_in server_addr;
   int sock_fd = socket(AF_INET,SOCK_STREAM,0);
-  socklen_t size_server_addr;
 
   //Game Variables
   SDL_Event event;
@@ -29,8 +20,6 @@ int main(int argc, char *argv[])
   int cols,lines,n_players;
   char **board_geral;
   int pac_horizontal_move = 0, pac_vertical_move = 0, mon_horizontal_move = 0, mon_vertical_move = 0, xaux = 0, yaux = 0;
-  Player pacman_local, monster_local;
-  Player *pacman_others;
   int coord[2];
   int last_coord[2];
   last_coord[0] = -1;
@@ -53,26 +42,30 @@ int main(int argc, char *argv[])
   }
   //Connecting to server
   connect_server(ip_addr,port,local_addr,server_addr,sock_fd);
-  size_server_addr = sizeof(struct sockaddr_storage);
+
   read(sock_fd,&cols,sizeof(int));
   read(sock_fd,&lines,sizeof(int));
-  printf("%d %d\n",cols,lines);
-  board_geral = malloc(sizeof(char *) * lines);
-  for ( int i = 0 ; i < lines; i++)
+  printf("%d %d\n",lines,cols );
+  //board malloc
+  board_geral = malloc(sizeof(char *) * cols+1);
+  for ( int i = 0 ; i < cols; i++)
   {
-    board_geral[i] = malloc (sizeof(char) * (cols+1));
+    board_geral[i] = malloc (sizeof(char) * lines);
   }
-  for(int i=0;i<lines;i++)
+
+  //Puts walls on map
+  for(int i=0;i<cols;i++)
   {
-    for(int j=0;j<cols+1;j++)
+    for(int j=0;j<lines;j++)
     {
       read(sock_fd,&board_geral[i][j],sizeof(char));
     }
   }
-  printf("Board kinda good\n");
-  initialize_map(cols,lines,board_geral);
-  printf("map good\n");
 
+  //Draws map and walls
+  initialize_map(cols,lines,board_geral);
+
+  //Game loop
   while(!done)
   {
     while(SDL_PollEvent(&event))
@@ -86,6 +79,7 @@ int main(int argc, char *argv[])
       read(sock_fd,&coord,sizeof(coord));
       printf("recieved %d %d\n",coord[0],coord[1] );
       update_map(coord[0],coord[1],last_coord[0],last_coord[1],n_players);
+
       last_coord[0] = coord[0];
       last_coord[1] = coord[1];
       //Movement
@@ -102,40 +96,40 @@ int main(int argc, char *argv[])
                 {
                   mon_horizontal_move = -1;
                 }
-                else if (board_geral[coord[0]-1][coord[1]]=='B' && board_geral[coord[0]+1][coord[1]]!='B')
+                /*else if (board_geral[coord[0]-1][coord[1]]=='B' && board_geral[coord[0]+1][coord[1]]!='B')
                 {
                   mon_horizontal_move = 1;
-                }
+                }*/
                 break;
               case SDLK_RIGHT:
                 if (board_geral[coord[0]+1][coord[1]]!='B')
                 {
                   mon_horizontal_move = 1;
                 }
-                else if (board_geral[coord[0]+1][coord[1]]=='B' && board_geral[coord[0]-1][coord[1]]!='B')
+                /*else if (board_geral[coord[0]+1][coord[1]]=='B' && board_geral[coord[0]-1][coord[1]]!='B')
                 {
                   mon_horizontal_move = -1;
-                }
+                }*/
                 break;
               case SDLK_UP:
                 if (board_geral[coord[0]][coord[1]-1]!='B')
                 {
                   mon_vertical_move = -1;
                 }
-                else if (board_geral[coord[0]][coord[1]-1]=='B' && board_geral[coord[0]][coord[1]+1]!='B')
+                /*else if (board_geral[coord[0]][coord[1]-1]=='B' && board_geral[coord[0]][coord[1]+1]!='B')
                 {
                   mon_vertical_move = 1;
-                }
+                }*/
                 break;
               case SDLK_DOWN:
                 if (board_geral[coord[0]][coord[1]+1]!='B')
                 {
                   mon_vertical_move = 1;
                 }
-                else if (board_geral[coord[0]][coord[1]+1]=='B' && board_geral[coord[0]][coord[1]-1]!='B')
+                /*else if (board_geral[coord[0]][coord[1]+1]=='B' && board_geral[coord[0]][coord[1]-1]!='B')
                 {
                   mon_vertical_move = -1;
-                }
+                }*/
                 break;
               default:
                 break;
@@ -277,56 +271,18 @@ int main(int argc, char *argv[])
         coord[1] = n_lines-1;
       }*/
 
-      //Send info
+      //Send info to server
       write(sock_fd,&coord,sizeof(coord));
-      printf("Is it working?\n");
+      coord[0] = last_coord[0];
+      coord[1] = last_coord[1];
     }
   }
   close_board_windows();
   exit(0);
 }
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-void connect_server(char ip_addr[MAXIP],int port,struct sockaddr_in local_addr,struct sockaddr_in server_addr, int sock_fd)
-{
-  if(sock_fd == -1)
-  {
-    perror("socket: ");
-  }
 
-  server_addr.sin_family = AF_INET;
-  server_addr.sin_port = htons(port);
-  inet_aton(ip_addr,&server_addr.sin_addr);
 
-  if(connect(sock_fd,(const struct sockaddr *)&server_addr,sizeof(server_addr)) == -1)
-  {
-    printf("Error connecting\n");
-    exit(-1);
-  }
-}
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-void initialize_map(int n_cols, int n_lines, char **board_geral)
-{
-  create_board_window(n_cols, n_lines);
-  printf("map kinda good\n");
-  //Preencher paredes
-  for(int y=0;y<n_lines;y++)
-  {
-    for(int x=0;x<n_cols+1;x++)
-    {
-      if(board_geral[y][x] == 'B')
-      {
-        paint_brick(x,y);
-      }
-    }
-  }
-}
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-void update_map(int x,int y,int last_x,int last_y,int n_players)
-{
-  if(last_x != -1)
-    clear_place(last_x,last_y);
-  paint_pacman(x,y,255,255,0);
-}
+//May change file
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 char** initialize_fruits(int cols, int lines,int n_players, char** board)
 {

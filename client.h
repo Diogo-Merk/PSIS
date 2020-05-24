@@ -1,3 +1,16 @@
+#include <sys/socket.h>
+#include <sys/un.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <signal.h>
+#include <pthread.h>
+#include <SDL2/SDL.h>
+#include "UI_library.h"
+#define MAXIP 20
 typedef struct Player
 {
   int x,y;
