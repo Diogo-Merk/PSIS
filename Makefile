@@ -3,10 +3,10 @@
 #-----------------------------------------------------------------------
 #compile commands
 server:
-	gcc server.c UI_library.c -o $@ -lpthread -lSDL2 -lSDL2_image -Wall
+	gcc server_novo.c server_library.c UI_library.c -o $@ -lpthread -lSDL2 -lSDL2_image -Wall
 
 client:
-	gcc client.c UI_library.c -o $@ -lpthread -lSDL2 -lSDL2_image -Wall
+	gcc client.c  client_library.c UI_library.c -o $@ -lpthread -lSDL2 -lSDL2_image -Wall
 
 FILES = $(shell ls *.txt)
 # test commands

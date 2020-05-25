@@ -79,7 +79,6 @@ int main(int argc, char *argv[])
       read(sock_fd,&coord,sizeof(coord));
       printf("recieved %d %d\n",coord[0],coord[1] );
       update_map(coord[0],coord[1],last_coord[0],last_coord[1],n_players);
-
       last_coord[0] = coord[0];
       last_coord[1] = coord[1];
       //Movement
@@ -92,44 +91,16 @@ int main(int argc, char *argv[])
             switch( event.key.keysym.sym )
             {
               case SDLK_LEFT:
-                if (board_geral[coord[0]-1][coord[1]]!='B')
-                {
-                  mon_horizontal_move = -1;
-                }
-                /*else if (board_geral[coord[0]-1][coord[1]]=='B' && board_geral[coord[0]+1][coord[1]]!='B')
-                {
-                  mon_horizontal_move = 1;
-                }*/
+                mon_horizontal_move = -1;
                 break;
               case SDLK_RIGHT:
-                if (board_geral[coord[0]+1][coord[1]]!='B')
-                {
-                  mon_horizontal_move = 1;
-                }
-                /*else if (board_geral[coord[0]+1][coord[1]]=='B' && board_geral[coord[0]-1][coord[1]]!='B')
-                {
-                  mon_horizontal_move = -1;
-                }*/
+                mon_horizontal_move = 1;
                 break;
               case SDLK_UP:
-                if (board_geral[coord[0]][coord[1]-1]!='B')
-                {
-                  mon_vertical_move = -1;
-                }
-                /*else if (board_geral[coord[0]][coord[1]-1]=='B' && board_geral[coord[0]][coord[1]+1]!='B')
-                {
-                  mon_vertical_move = 1;
-                }*/
+                mon_vertical_move = -1;
                 break;
               case SDLK_DOWN:
-                if (board_geral[coord[0]][coord[1]+1]!='B')
-                {
-                  mon_vertical_move = 1;
-                }
-                /*else if (board_geral[coord[0]][coord[1]+1]=='B' && board_geral[coord[0]][coord[1]-1]!='B')
-                {
-                  mon_vertical_move = -1;
-                }*/
+                mon_vertical_move = 1;
                 break;
               default:
                 break;
@@ -236,40 +207,6 @@ int main(int argc, char *argv[])
       coord[1] += mon_vertical_move;
       //coord[0] += pac_horizontal_move;
       //coord[1] += pac_vertical_move;
-
-      //condicoes de teleporte
-      /*if (coord[0]>=n_cols)
-      {
-        coord[0] = 0;
-      }
-      if (coord[0]<0)
-      {
-        coord[0] = n_cols-1;
-      }
-      if (coord[1]>=n_lines)
-      {
-        coord[1] = 0;
-      }
-      if (coord[1]<0)
-      {
-        coord[1] = n_lines-1;
-      }
-      if (coord[0]>=n_cols)
-      {
-        coord[0] = 0;
-      }
-      if (coord[0]<0)
-      {
-        coord[0] = n_cols-1;
-      }
-      if (coord[1]>=n_lines)
-      {
-        coord[1] = 0;
-      }
-      if (coord[1]<0)
-      {
-        coord[1] = n_lines-1;
-      }*/
 
       //Send info to server
       write(sock_fd,&coord,sizeof(coord));

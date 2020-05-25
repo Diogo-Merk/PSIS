@@ -23,6 +23,6 @@ void server_start(int sock_fd);
 char** initialize_map(int *cols, int *lines, int *n_playersmax);
 Player_ID set_info(int *colour, int id,int sock);
 void *game(void*);
-int check_interaction(int coord[2]);
+int check_interaction(int coord[2], int last_coord[2]);
 void send_info();
 int *random_coord();

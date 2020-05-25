@@ -101,7 +101,7 @@ void *game(void* client)
     if(read(player.sock,&coord,sizeof(coord))>0)
     {
       printf("recieved coordinates: %d %d\n",coord[0],coord[1]);
-      int resp = check_interaction(coord);
+      int resp = check_interaction(coord, last_coord);
       SDL_PollEvent(&event);
       //May go to switch case
       if(event.type == SDL_QUIT)
@@ -112,6 +112,22 @@ void *game(void* client)
           write(player.sock,&last_coord,sizeof(last_coord));
           break;
         case 2:
+          last_coord[0]=last_coord[0]+1;
+          write(player.sock,&last_coord,sizeof(last_coord));
+          break;
+        case 3:
+          last_coord[0]=last_coord[0]-1;
+          write(player.sock,&last_coord,sizeof(last_coord));
+          break;
+        case 4:
+          last_coord[1]=last_coord[1]+1;
+          write(player.sock,&last_coord,sizeof(last_coord));
+          break;
+        case 5:
+          last_coord[1]=last_coord[1]-1;
+          write(player.sock,&last_coord,sizeof(last_coord));
+          break;
+        case 69:
           write(player.sock,&coord,sizeof(coord));
           break;
 
@@ -130,14 +146,62 @@ void send_info()
 {
   printf("fuck you\n");
 }
-int check_interaction(int coord[2])
+int check_interaction(int coord[2], int last_coord[2])
 {
     int i=coord[0];
     int j=coord[1];
-    if(board[i][j] == 'B' || i<0 || j<0 || i > n_lines || j > n_cols)
-      return 1;
+    int x=last_coord[0];
+    int y=last_coord[1];
+    if (i < 0 || j < 0 || i >= n_cols || j >= n_lines)
+    {
+      printf("mamas\n");
+      if (x>i && board[x+1][y] != 'B')
+      {
+        return 2;
+      }
+      else if(x<i  && board[x-1][y] != 'B')
+      {
+        return 3;
+      }
+      else if(y>j  && board[x][y+1] != 'B')
+      {
+        return 4;
+      }
+      else if(y<j  && board[x][y-1] != 'B')
+      {
+        return 5;
+      }
+      else
+      {
+        return 1;
+      }
+    }
+    else if(board[i][j] == 'B')
+    {
+      printf("tetas\n");
+      if (x>i && board[x+1][y] != 'B')
+      {
+        return 2;
+      }
+      else if(x<i  && board[x-1][y] != 'B')
+      {
+        return 3;
+      }
+      else if(y>j  && board[x][y+1] != 'B')
+      {
+        return 4;
+      }
+      else if(y<j  && board[x][y-1] != 'B')
+      {
+        return 5;
+      }
+      else
+      {
+        return 1;
+      }
+    }
     else if(board[i][j] == ' ')
-      return 2;
+      return 69;
 }
 int *random_coord()
 {
