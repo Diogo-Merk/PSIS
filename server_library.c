@@ -154,7 +154,6 @@ int check_interaction(int coord[2], int last_coord[2])
     int y=last_coord[1];
     if (i < 0 || j < 0 || i >= n_cols || j >= n_lines)
     {
-      printf("mamas\n");
       if (x>i && board[x+1][y] != 'B')
       {
         return 2;
@@ -178,27 +177,30 @@ int check_interaction(int coord[2], int last_coord[2])
     }
     else if(board[i][j] == 'B')
     {
-      printf("tetas\n");
-      if (x>i && board[x+1][y] != 'B')
+      if (x+1 < n_cols)
       {
-        return 2;
+        if (x>i && board[x+1][y] != 'B')
+          return 2;
       }
-      else if(x<i  && board[x-1][y] != 'B')
+
+      if(x-1 >= 0)
       {
-        return 3;
+        if(x<i  && board[x-1][y] != 'B')
+          return 3;
       }
-      else if(y>j  && board[x][y+1] != 'B')
+
+      if(y+1 < n_lines)
       {
-        return 4;
+        if(y>j  && board[x][y+1] != 'B')
+          return 4;
       }
-      else if(y<j  && board[x][y-1] != 'B')
+      if(y-1 >= 0)
       {
-        return 5;
+        if(y<j  && board[x][y-1] != 'B')
+          return 5;
       }
-      else
-      {
-        return 1;
-      }
+
+      return 1;
     }
     else if(board[i][j] == ' ')
       return 69;
