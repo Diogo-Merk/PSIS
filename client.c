@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
   int done = 0;
   int cols,lines,n_players;
   char **board_geral;
-  int pac_horizontal_move = 0, pac_vertical_move = 0, mon_horizontal_move = 0, mon_vertical_move = 0, xaux = 0, yaux = 0;
+  int pac_horizontal_move = 0, pac_vertical_move = 0, mon_horizontal_move = 0, mon_vertical_move = 0, xaux = 0, yaux = 0, mouse_x = 0, mouse_y = 0;
   int coord[2];
   int last_coord[2];
   last_coord[0] = -1;
@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
 
       //recieving player positions
       read(sock_fd,&coord,sizeof(coord));
-      printf("recieved %d %d\n",coord[0],coord[1] );
+      //printf("recieved %d %d\n",coord[0],coord[1] );
       update_map(coord[0],coord[1],last_coord[0],last_coord[1],n_players);
       last_coord[0] = coord[0];
       last_coord[1] = coord[1];
@@ -138,38 +138,26 @@ int main(int argc, char *argv[])
               /* Check the SDLKey values and move change the coords */
               if( event.button.button == SDL_BUTTON_LEFT)
               {
-                SDL_GetMouseState(&xaux, &yaux);
-                if (xaux>coord[0] && yaux < xaux && yaux > -xaux && board_geral[coord[0]+1][coord[1]]!='B')
+                SDL_GetMouseState(&mouse_x, &mouse_y);
+                get_board_place(mouse_x,mouse_y, &xaux, &yaux);
+                xaux=xaux-coord[0];
+                yaux=yaux-coord[1];
+                printf("xaux yaux: %d %d\n", xaux, yaux);
+                if (xaux>0 && yaux ==0)
                 {
                   pac_horizontal_move = 1;
                 }
-                else if (board_geral[coord[0]+1][coord[1]]=='B' && board_geral[coord[0]-1][coord[1]]!='B')
+                if (xaux<0 && yaux ==0)
                 {
                   pac_horizontal_move = -1;
                 }
-                if (xaux<coord[0] && yaux > xaux && yaux < -xaux && board_geral[coord[0]-1][coord[1]]!='B')
-                {
-                  pac_horizontal_move = -1;
-                }
-                else if (board_geral[coord[0]-1][coord[1]]=='B' && board_geral[coord[0]+1][coord[1]]!='B')
-                {
-                  pac_horizontal_move = 1;
-                }
-                if (yaux>coord[1] && yaux > xaux && yaux > -xaux && board_geral[coord[0]][coord[1]+1]!='B')
+                if (yaux>0 && xaux==0)
                 {
                   pac_vertical_move = 1;
                 }
-                else if (board_geral[coord[0]][coord[1]+1]=='B' && board_geral[coord[0]][coord[1]-1]!='B')
+                if (yaux<0 && xaux==0)
                 {
                   pac_vertical_move = -1;
-                }
-                if (yaux>coord[1] && yaux < xaux && yaux < -xaux && board_geral[coord[0]][coord[1]-1]!='B')
-                {
-                  pac_vertical_move = -1;
-                }
-                else if (board_geral[coord[0]][coord[1]-1]=='B' && board_geral[coord[0]-1][coord[1]+1]!='B')
-                {
-                  pac_vertical_move = 1;
                 }
               }
           break;
@@ -178,7 +166,9 @@ int main(int argc, char *argv[])
             /* Check the SDLKey values and zero the movemnet when necessary */
             if(event.button.button == SDL_BUTTON_LEFT)
             {
-                if( pac_horizontal_move < 0 )
+              pac_horizontal_move = 0;
+              pac_vertical_move = 0;
+                /*if( pac_horizontal_move < 0 )
                 {
                   pac_horizontal_move = 0;
                 }
@@ -195,7 +185,7 @@ int main(int argc, char *argv[])
                 if( pac_vertical_move > 0 )
                 {
                   pac_vertical_move = 0;
-                }
+                }*/
             }
             break;
 
@@ -203,8 +193,8 @@ int main(int argc, char *argv[])
             break;
         }
       //Update position
-      coord[0] += mon_horizontal_move;
-      coord[1] += mon_vertical_move;
+      coord[0] += pac_horizontal_move;
+      coord[1] += pac_vertical_move;
       //coord[0] += pac_horizontal_move;
       //coord[1] += pac_vertical_move;
 
