@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
   int done = 0;
   int cols,lines,n_players;
   char **board_geral;
-  int pac_horizontal_move = 0, pac_vertical_move = 0, mon_horizontal_move = 0, mon_vertical_move = 0, xaux = 0, yaux = 0, mouse_x = 0, mouse_y = 0;
+  int pac_horizontal_move = 0, pac_vertical_move = 0, mon_horizontal_move = 0, mon_vertical_move = 0, xaux = 0, yaux = 0, mouse_x = 0, mouse_y = 0, one_tap=0;
   int coord[2];
   int last_coord[2];
   last_coord[0] = -1;
@@ -81,6 +81,8 @@ int main(int argc, char *argv[])
       update_map(coord[0],coord[1],last_coord[0],last_coord[1],n_players);
       last_coord[0] = coord[0];
       last_coord[1] = coord[1];
+      mon_horizontal_move = 0;
+      mon_vertical_move = 0;
       //Movement
       switch( event.type )
       {
@@ -91,16 +93,24 @@ int main(int argc, char *argv[])
             switch( event.key.keysym.sym )
             {
               case SDLK_LEFT:
-                mon_horizontal_move = -1;
+                if (one_tap==0)
+                  mon_horizontal_move = -1;
+                one_tap = 1;
                 break;
               case SDLK_RIGHT:
-                mon_horizontal_move = 1;
+                if (one_tap==0)
+                  mon_horizontal_move = 1;
+                one_tap = 1;
                 break;
               case SDLK_UP:
-                mon_vertical_move = -1;
+                if(one_tap==0)
+                  mon_vertical_move = -1;
+                one_tap=1;
                 break;
               case SDLK_DOWN:
-                mon_vertical_move = 1;
+                if(one_tap==0)
+                  mon_vertical_move = 1;
+                one_tap=1;
                 break;
               default:
                 break;
@@ -112,20 +122,20 @@ int main(int argc, char *argv[])
           switch( event.key.keysym.sym)
           {
             case SDLK_LEFT:
-              if( mon_horizontal_move < 0 )
-                  mon_horizontal_move = 0;
+              mon_horizontal_move = 0;
+              one_tap=0;
               break;
             case SDLK_RIGHT:
-              if( mon_horizontal_move > 0 )
-                  mon_horizontal_move = 0;
+              mon_horizontal_move = 0;
+              one_tap=0;
               break;
             case SDLK_UP:
-              if( mon_vertical_move < 0 )
-                  mon_vertical_move = 0;
+              mon_vertical_move = 0;
+              one_tap=0;
               break;
             case SDLK_DOWN:
-              if( mon_vertical_move > 0 )
-                  mon_vertical_move = 0;
+              mon_vertical_move = 0;
+              one_tap=0;
               break;
             default:
               break;
@@ -167,7 +177,7 @@ int main(int argc, char *argv[])
             if(event.button.button == SDL_BUTTON_LEFT)
             {
               pac_horizontal_move = 0;
-              pac_vertical_move = 0;
+              pac_vertical_move=0;
                 /*if( pac_horizontal_move < 0 )
                 {
                   pac_horizontal_move = 0;

@@ -106,6 +106,7 @@ void *game(void* client)
       //May go to switch case
       if(event.type == SDL_QUIT)
         done = SDL_TRUE;
+      
       switch (resp)
       {
         case 1:
