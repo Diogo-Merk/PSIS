@@ -9,7 +9,7 @@ int main()
   int client_sock;
   int sock_fd = socket(AF_INET,SOCK_STREAM,0);
   pthread_t client_connect;
-  Player_ID clients;
+  Player_ID *clients;
   char **board_geral;
   SDL_Event event;
 
@@ -26,7 +26,7 @@ int main()
       read(client_sock,&colour[i],sizeof(int));
     }*/
     //Changes
-    clients = set_info(colour,n_players,client_sock);
+    clients = set_info(client_sock,n_players,colour);
     //sending map size
     write(client_sock,&cols,sizeof(int));
     write(client_sock,&lines,sizeof(int));

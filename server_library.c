@@ -5,7 +5,7 @@
 struct sockaddr_in local_addr,client_addr;
 int n_players,n_lines,n_cols;
 char **board;
-Player_ID *all_players;
+Player_ID *head = NULL;
 
 void server_start(int sock_fd)
 {
@@ -25,6 +25,7 @@ void server_start(int sock_fd)
     exit(-1);
   }
 }
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 char** initialize_map(int *cols, int *lines,int *n_playersmax)
 {
   int n_walls=0;
@@ -71,20 +72,99 @@ char** initialize_map(int *cols, int *lines,int *n_playersmax)
   *n_playersmax = ((n_lines*n_cols)-n_walls)/2;
   return board;
 }
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //Changes to list format
-Player_ID set_info(int *colour, int id,int sock)
+Player_ID set_info(int *colour, int id,int type)
 {
-  Player_ID new_player;
+  Player new_player;
   for(int i=0;i<3;i++)
   {
     //new_player.colour[i]=colour[i];
 
   }
-    new_player.id = id;
-    new_player.sock = sock;
+  new_player.type = type;
 
   return new_player;
 }
+void disconnect_player()
+{
+  n_players = n_players-1;
+  return;
+}
+
+//LIST OPERATIONS
+Player_ID *create_node()
+{
+  Player_ID *node;
+  return node = (Player_ID*) malloc(sizeof(Player_ID));
+}
+void insert_node(Player_ID *pnode)
+{
+  Player_ID *aux = head;
+  if(head == NULL)
+    head = pnode;
+  else
+  {
+    while(aux->next != NULL)
+    {
+      aux->next;
+    }
+    aux->next = pnode;
+  }
+}
+void remove_node(int id)
+{
+  Player_ID *prev,*temp;
+  temp = head;
+  disconnect_player();
+  if(temp != NULL && temp->id == id)
+  {
+    head = temp->next;
+    free(temp);
+    return;
+  }
+  while(temp != NULL && temp->id != id)
+  {
+    prev = temp;
+    temp = temp->next;
+  }
+  if(temp == NULL)
+    return;
+  prev->next = temp->next;
+  free(temp);
+}
+Player insert_player(int sock, int n_players,int colour[3])
+{
+  Player_ID *new = create_node();
+  new->sock = sock;
+  new-> id = n_players;
+  new->pacman = set_info(colour,n_players,1);
+  new->monster = set_info(colour,n_players,0);
+  new->next = NULL;
+  insert_node(new);
+  return new;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 void *game(void* client)
 {
   int done = 0;
@@ -155,10 +235,12 @@ void *game(void* client)
   }
   pthread_exit(NULL);
 }
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 void send_info()
 {
   printf("fuck you\n");
 }
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 int check_interaction(int coord[2], int last_coord[2])
 {
     int i=coord[0];
@@ -222,7 +304,7 @@ int check_interaction(int coord[2], int last_coord[2])
     else if(board[i][j] == ' ')
       return 0;
 }
-
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 int *random_coord()
 {
   int *coord;
@@ -235,7 +317,6 @@ int *random_coord()
   }
   return coord;
 }
-
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 char** initialize_fruits(int cols, int lines,int n_players, char** board)
 {

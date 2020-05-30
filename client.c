@@ -24,8 +24,8 @@ int main(int argc, char *argv[])
   int pac_horizontal_move = 0, pac_vertical_move = 0, mon_horizontal_move = 0, mon_vertical_move = 0, xaux = 0, yaux = 0, mouse_x = 0, mouse_y = 0, one_tapmon=0, one_tappac=0;
 
   //garante primeira iteração  do loop
-  pacman.ID=1;
-  monster.ID=0;
+  pacman.type=1;
+  monster.type=0;
   pacman.last_coord[0] = -1;
   monster.last_coord[0] = -1;
 

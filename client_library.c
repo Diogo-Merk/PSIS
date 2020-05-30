@@ -49,11 +49,11 @@ void update_map(Player player,int n_players)
 {
   if(player.last_coord[0] != -1)
     clear_place(player.last_coord[0],player.last_coord[1]);
-  if (player.ID==1)
+  if (player.type==1)
   {
     paint_pacman(player.coord[0],player.coord[1],255,255,0);
   }
-  if (player.ID==0)
+  if (player.type==0)
   {
     paint_monster(player.coord[0],player.coord[1],0,0,0);
   }

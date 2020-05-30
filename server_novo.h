@@ -16,11 +16,19 @@ typedef struct Player_ID
 {
   int sock;
   int id;
-  int colour[3];
-  int n_players;
-  int score;
-  int type;
+  Player pacman;
+  Player monster;
+  Player_ID *next;
 }Player_ID;
+
+typedef struct Player
+{
+  int coord[2];
+  int last_coord[2];
+  int r,g,b;
+  int type;
+}Player;
+
 
 void server_start(int sock_fd);
 char** initialize_map(int *cols, int *lines, int *n_playersmax);

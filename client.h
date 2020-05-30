@@ -16,7 +16,7 @@ typedef struct Player
   int coord[2];
   int last_coord[2];
   int r,g,b;
-  int ID;
+  int type;
 }Player;
 
 
