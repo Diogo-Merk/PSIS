@@ -45,9 +45,16 @@ void initialize_map(int n_cols, int n_lines, char **board_geral)
   }
 }
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-void update_map(int x,int y,int last_x,int last_y,int n_players)
+void update_map(Player player,int n_players)
 {
-  if(last_x != -1)
-    clear_place(last_x,last_y);
-  paint_pacman(x,y,255,255,0);
+  if(player.last_coord[0] != -1)
+    clear_place(player.last_coord[0],player.last_coord[1]);
+  if (player.ID==1)
+  {
+    paint_pacman(player.coord[0],player.coord[1],255,255,0);
+  }
+  if (player.ID==0)
+  {
+    paint_monster(player.coord[0],player.coord[1],0,0,0);
+  }
 }

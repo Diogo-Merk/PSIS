@@ -16,13 +16,18 @@ int main(int argc, char *argv[])
 
   //Game Variables
   SDL_Event event;
+  Player monster;
+  Player pacman;
   int done = 0;
   int cols,lines,n_players;
   char **board_geral;
   int pac_horizontal_move = 0, pac_vertical_move = 0, mon_horizontal_move = 0, mon_vertical_move = 0, xaux = 0, yaux = 0, mouse_x = 0, mouse_y = 0, one_tapmon=0, one_tappac=0;
-  int coord[2];
-  int last_coord[2];
-  last_coord[0] = -1;
+
+  //garante primeira iteração  do loop
+  pacman.ID=1;
+  monster.ID=0;
+  pacman.last_coord[0] = -1;
+  monster.last_coord[0] = -1;
 
   //Testing argc
   if(argc < 3)
@@ -45,7 +50,6 @@ int main(int argc, char *argv[])
 
   read(sock_fd,&cols,sizeof(int));
   read(sock_fd,&lines,sizeof(int));
-  printf("%d %d\n",lines,cols );
   //board malloc
   board_geral = malloc(sizeof(char *) * cols+1);
   for ( int i = 0 ; i < cols; i++)
@@ -76,11 +80,21 @@ int main(int argc, char *argv[])
       }
 
       //recieving player positions
-      read(sock_fd,&coord,sizeof(coord));
-      //printf("recieved %d %d\n",coord[0],coord[1] );
-      update_map(coord[0],coord[1],last_coord[0],last_coord[1],n_players);
-      last_coord[0] = coord[0];
-      last_coord[1] = coord[1];
+      read(sock_fd,&pacman.coord,sizeof(pacman.coord));
+      read(sock_fd,&monster.coord,sizeof(monster.coord));
+      if (pacman.coord[0]!=pacman.last_coord[0] || pacman.coord[1]!=pacman.last_coord[1])
+      {
+        update_map(pacman, n_players);
+      }
+      if (monster.coord[0]!=monster.last_coord[0] || monster.coord[1]!=monster.last_coord[1])
+      {
+        update_map(monster, n_players);
+      }
+
+      pacman.last_coord[0] = pacman.coord[0];
+      pacman.last_coord[1] = pacman.coord[1];
+      monster.last_coord[0] = monster.coord[0];
+      monster.last_coord[1] = monster.coord[1];
       mon_horizontal_move = 0;
       mon_vertical_move = 0;
       pac_horizontal_move = 0;
@@ -91,7 +105,7 @@ int main(int argc, char *argv[])
         //Monster Movement
         /* Look for a keypress */
         case SDL_KEYDOWN:
-            /* Check the SDLKey values and move change the coords */
+            /* Check the SDLKey values and move change the coordps */
             switch( event.key.keysym.sym )
             {
               case SDLK_LEFT:
@@ -147,13 +161,13 @@ int main(int argc, char *argv[])
           //Pacman Movement
           /* Look for a keypress */
           case SDL_MOUSEBUTTONDOWN:
-              /* Check the SDLKey values and move change the coords */
+              /* Check the SDLKey values and move change the coordps */
               if( event.button.button == SDL_BUTTON_LEFT)
               {
                 SDL_GetMouseState(&mouse_x, &mouse_y);
                 get_board_place(mouse_x,mouse_y, &xaux, &yaux);
-                xaux=xaux-coord[0];
-                yaux=yaux-coord[1];
+                xaux=xaux-pacman.coord[0];
+                yaux=yaux-pacman.coord[1];
                 if (xaux>0 && yaux ==0)
                 {
                   if (one_tappac==0)
@@ -195,15 +209,18 @@ int main(int argc, char *argv[])
             break;
         }
       //Update position
-      coord[0] += mon_horizontal_move;
-      coord[1] += mon_vertical_move;
-      //coord[0] += pac_horizontal_move;
-      //coord[1] += pac_vertical_move;
+      monster.coord[0] += mon_horizontal_move;
+      monster.coord[1] += mon_vertical_move;
+      pacman.coord[0] += pac_horizontal_move;
+      pacman.coord[1] += pac_vertical_move;
 
       //Send info to server
-      write(sock_fd,&coord,sizeof(coord));
-      coord[0] = last_coord[0];
-      coord[1] = last_coord[1];
+      write(sock_fd,&pacman.coord,sizeof(pacman.coord));
+      write(sock_fd,&monster.coord,sizeof(monster.coord));
+      pacman.coord[0] = pacman.last_coord[0];
+      pacman.coord[1] = pacman.last_coord[1];
+      monster.coord[0] = monster.last_coord[0];
+      monster.coord[1] = monster.last_coord[1];
     }
   }
   close_board_windows();
