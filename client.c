@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
   int done = 0;
   int cols,lines,n_players;
   char **board_geral;
-  int pac_horizontal_move = 0, pac_vertical_move = 0, mon_horizontal_move = 0, mon_vertical_move = 0, xaux = 0, yaux = 0, mouse_x = 0, mouse_y = 0, one_tap=0;
+  int pac_horizontal_move = 0, pac_vertical_move = 0, mon_horizontal_move = 0, mon_vertical_move = 0, xaux = 0, yaux = 0, mouse_x = 0, mouse_y = 0, one_tapmon=0, one_tappac=0;
   int coord[2];
   int last_coord[2];
   last_coord[0] = -1;
@@ -83,6 +83,8 @@ int main(int argc, char *argv[])
       last_coord[1] = coord[1];
       mon_horizontal_move = 0;
       mon_vertical_move = 0;
+      pac_horizontal_move = 0;
+      pac_vertical_move = 0;
       //Movement
       switch( event.type )
       {
@@ -93,24 +95,24 @@ int main(int argc, char *argv[])
             switch( event.key.keysym.sym )
             {
               case SDLK_LEFT:
-                if (one_tap==0)
+                if (one_tapmon==0)
                   mon_horizontal_move = -1;
-                one_tap = 1;
+                one_tapmon = 1;
                 break;
               case SDLK_RIGHT:
-                if (one_tap==0)
+                if (one_tapmon==0)
                   mon_horizontal_move = 1;
-                one_tap = 1;
+                one_tapmon = 1;
                 break;
               case SDLK_UP:
-                if(one_tap==0)
+                if(one_tapmon==0)
                   mon_vertical_move = -1;
-                one_tap=1;
+                one_tapmon=1;
                 break;
               case SDLK_DOWN:
-                if(one_tap==0)
+                if(one_tapmon==0)
                   mon_vertical_move = 1;
-                one_tap=1;
+                one_tapmon=1;
                 break;
               default:
                 break;
@@ -123,19 +125,19 @@ int main(int argc, char *argv[])
           {
             case SDLK_LEFT:
               mon_horizontal_move = 0;
-              one_tap=0;
+              one_tapmon=0;
               break;
             case SDLK_RIGHT:
               mon_horizontal_move = 0;
-              one_tap=0;
+              one_tapmon=0;
               break;
             case SDLK_UP:
               mon_vertical_move = 0;
-              one_tap=0;
+              one_tapmon=0;
               break;
             case SDLK_DOWN:
               mon_vertical_move = 0;
-              one_tap=0;
+              one_tapmon=0;
               break;
             default:
               break;
@@ -152,22 +154,29 @@ int main(int argc, char *argv[])
                 get_board_place(mouse_x,mouse_y, &xaux, &yaux);
                 xaux=xaux-coord[0];
                 yaux=yaux-coord[1];
-                printf("xaux yaux: %d %d\n", xaux, yaux);
                 if (xaux>0 && yaux ==0)
                 {
-                  pac_horizontal_move = 1;
+                  if (one_tappac==0)
+                    pac_horizontal_move = 1;
+                  one_tappac=1;
                 }
                 if (xaux<0 && yaux ==0)
                 {
-                  pac_horizontal_move = -1;
+                  if (one_tappac==0)
+                    pac_horizontal_move = -1;
+                  one_tappac=1;
                 }
                 if (yaux>0 && xaux==0)
                 {
-                  pac_vertical_move = 1;
+                  if (one_tappac==0)
+                    pac_vertical_move = 1;
+                  one_tappac=1;
                 }
                 if (yaux<0 && xaux==0)
                 {
-                  pac_vertical_move = -1;
+                  if (one_tappac==0)
+                    pac_vertical_move = -1;
+                  one_tappac=1;
                 }
               }
           break;
@@ -177,25 +186,8 @@ int main(int argc, char *argv[])
             if(event.button.button == SDL_BUTTON_LEFT)
             {
               pac_horizontal_move = 0;
-              pac_vertical_move=0;
-                /*if( pac_horizontal_move < 0 )
-                {
-                  pac_horizontal_move = 0;
-                }
-                if( pac_horizontal_move > 0 )
-                {
-                  pac_horizontal_move = 0;
-                }
-
-                if( pac_vertical_move < 0 )
-                {
-                  pac_vertical_move = 0;
-                }
-
-                if( pac_vertical_move > 0 )
-                {
-                  pac_vertical_move = 0;
-                }*/
+              pac_vertical_move = 0;
+              one_tappac=0;
             }
             break;
 
@@ -203,8 +195,8 @@ int main(int argc, char *argv[])
             break;
         }
       //Update position
-      coord[0] += pac_horizontal_move;
-      coord[1] += pac_vertical_move;
+      coord[0] += mon_horizontal_move;
+      coord[1] += mon_vertical_move;
       //coord[0] += pac_horizontal_move;
       //coord[1] += pac_vertical_move;
 
@@ -217,61 +209,3 @@ int main(int argc, char *argv[])
   close_board_windows();
   exit(0);
 }
-
-
-//May change file
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-char** initialize_fruits(int cols, int lines,int n_players, char** board)
-{
-  srand(time(NULL));
-  int i = 0, l = 0, c = 0, r= 0;
-
-  while (i<((n_players-1)*2))
-  {
-    l = rand() % lines;
-    c = rand() % cols;
-    r = rand() % 1;
-    if (board[c][l] == ' ')
-    {
-      if (r==1)
-      {
-        board[c][l] = 'C';
-        paint_cherry(c,l);
-        i++;
-      }
-      else
-      {
-        board[c][l] = 'L';
-        paint_lemon(c,l);
-        i++;
-      }
-    }
-  }
-  return board;
-}
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-char** update_fruits(int cols, int lines, char** board)
-{
-  srand(time(NULL));
-  int i = 0, l = 0, c = 0, r= 0;
-  l = rand() % lines;
-  c = rand() % cols;
-  r = rand() % 1;
-  if (board[c][l] == ' ')
-  {
-    if (r==1)
-    {
-      board[c][l] = 'C';
-      paint_cherry(c,l);
-      i++;
-    }
-    else
-    {
-      board[c][l] = 'L';
-      paint_lemon(c,l);
-      i++;
-    }
-  }
-  return board;
-}
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -1,3 +1,4 @@
+#include <time.h>
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <stdlib.h>
@@ -17,6 +18,8 @@ typedef struct Player_ID
   int id;
   int colour[3];
   int n_players;
+  int score;
+  int type;
 }Player_ID;
 
 void server_start(int sock_fd);
@@ -26,3 +29,4 @@ void *game(void*);
 int check_interaction(int coord[2], int last_coord[2]);
 void send_info();
 int *random_coord();
+char** initialize_fruits(int cols, int lines,int n_players, char** board);

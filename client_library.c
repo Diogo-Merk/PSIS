@@ -24,7 +24,6 @@ void connect_server(char ip_addr[MAXIP],int port,struct sockaddr_in local_addr,s
 void initialize_map(int n_cols, int n_lines, char **board_geral)
 {
   create_board_window(n_cols, n_lines);
-  printf("map kinda good\n");
   //Preencher paredes
   for(int x=0;x<n_cols;x++)
   {
@@ -33,6 +32,14 @@ void initialize_map(int n_cols, int n_lines, char **board_geral)
       if(board_geral[x][y] == 'B')
       {
         paint_brick(x,y);
+      }
+      if(board_geral[x][y] == 'L')
+      {
+        paint_lemon(x,y);
+      }
+      if(board_geral[x][y] == 'C')
+      {
+        paint_cherry(x,y);
       }
     }
   }

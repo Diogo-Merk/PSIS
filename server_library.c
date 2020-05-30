@@ -51,6 +51,8 @@ char** initialize_map(int *cols, int *lines,int *n_playersmax)
     fgetc(map);
   }
 
+  board = initialize_fruits(n_cols, n_lines,n_players, board);
+
   for(int x=0;x<n_cols;x++)
   {
     for(int y=0;y<n_lines;y++)
@@ -106,29 +108,39 @@ void *game(void* client)
       //May go to switch case
       if(event.type == SDL_QUIT)
         done = SDL_TRUE;
-      
+
       switch (resp)
       {
+        //Ficar parado
         case 1:
           write(player.sock,&last_coord,sizeof(last_coord));
           break;
+        //Knockback para a direita
         case 2:
           last_coord[0]=last_coord[0]+1;
           write(player.sock,&last_coord,sizeof(last_coord));
           break;
+        //Knockback para a esquerda
         case 3:
           last_coord[0]=last_coord[0]-1;
           write(player.sock,&last_coord,sizeof(last_coord));
           break;
+        //Knockback para baixo
         case 4:
           last_coord[1]=last_coord[1]+1;
           write(player.sock,&last_coord,sizeof(last_coord));
           break;
+        //Knockback para cima
         case 5:
           last_coord[1]=last_coord[1]-1;
           write(player.sock,&last_coord,sizeof(last_coord));
           break;
-        case 69:
+        //Fruta
+        case 6:
+          write(player.sock,&coord,sizeof(coord));
+          break;
+        //Andar para espaço livre
+        case 0:
           write(player.sock,&coord,sizeof(coord));
           break;
 
@@ -203,9 +215,14 @@ int check_interaction(int coord[2], int last_coord[2])
 
       return 1;
     }
+    else if (board[i][j]=='C'||board[i][j]=='L')
+    {
+      return 6;
+    }
     else if(board[i][j] == ' ')
-      return 69;
+      return 0;
 }
+
 int *random_coord()
 {
   int *coord;
@@ -218,3 +235,55 @@ int *random_coord()
   }
   return coord;
 }
+
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+char** initialize_fruits(int cols, int lines,int n_players, char** board)
+{
+  srand(time(NULL));
+  int i = 0, l = 0, c = 0, r= 0;
+
+  while (i<((n_players-1)*2))
+  {
+    l = rand() % lines;
+    c = rand() % cols;
+    r = rand() % 1;
+    if (board[c][l] == ' ')
+    {
+      if (r==1)
+      {
+        board[c][l] = 'C';
+        i++;
+      }
+      else
+      {
+        board[c][l] = 'L';
+        i++;
+      }
+    }
+  }
+  return board;
+}
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+char** update_fruits(int cols, int lines, char** board)
+{
+  srand(time(NULL));
+  int i = 0, l = 0, c = 0, r= 0;
+  l = rand() % lines;
+  c = rand() % cols;
+  r = rand() % 1;
+  if (board[c][l] == ' ')
+  {
+    if (r==1)
+    {
+      board[c][l] = 'C';
+      i++;
+    }
+    else
+    {
+      board[c][l] = 'L';
+      i++;
+    }
+  }
+  return board;
+}
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
