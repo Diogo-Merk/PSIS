@@ -12,14 +12,6 @@
 #include <SDL2/SDL.h>
 #include "UI_library.h"
 
-typedef struct Player_ID
-{
-  int sock;
-  int id;
-  Player pacman;
-  Player monster;
-  Player_ID *next;
-}Player_ID;
 
 typedef struct Player
 {
@@ -29,12 +21,28 @@ typedef struct Player
   int type;
 }Player;
 
+typedef struct Player_ID
+{
+  int sock;
+  int id;
+  Player pacman;
+  Player monster;
+  struct Player_ID *next;
+}Player_ID;
+
+
+
 
 void server_start(int sock_fd);
 char** initialize_map(int *cols, int *lines, int *n_playersmax);
-Player_ID set_info(int *colour, int id,int sock);
+Player set_info(int colour[3], int id,int type);
 void *game(void*);
 int check_interaction(int coord[2], int last_coord[2]);
 void send_info();
 int *random_coord();
 char** initialize_fruits(int cols, int lines,int n_players, char** board);
+Player_ID *create_node();
+void disconnect_player();
+void insert_node(Player_ID *pnode);
+void remove_node(int id);
+Player_ID *insert_player(int sock, int n_players,int colour[3]);

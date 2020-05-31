@@ -80,8 +80,8 @@ int main(int argc, char *argv[])
       }
 
       //recieving player positions
-      read(sock_fd,&pacman.coord,sizeof(pacman.coord));
-      read(sock_fd,&monster.coord,sizeof(monster.coord));
+      read(sock_fd,&pacman,sizeof(Player));
+      //read(sock_fd,&monster.coord,sizeof(monster.coord));
       if (pacman.coord[0]!=pacman.last_coord[0] || pacman.coord[1]!=pacman.last_coord[1])
       {
         update_map(pacman, n_players);

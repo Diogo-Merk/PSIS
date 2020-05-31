@@ -15,7 +15,6 @@ int main()
 
   server_start(sock_fd);
   board_geral = initialize_map(&cols,&lines,&n_playersmax);
-  printf("players max %d\n",n_playersmax);
   while(n_players < n_playersmax)
   {
     client_sock = accept(sock_fd,NULL,NULL);
@@ -26,7 +25,7 @@ int main()
       read(client_sock,&colour[i],sizeof(int));
     }*/
     //Changes
-    clients = set_info(client_sock,n_players,colour);
+    clients = insert_player(client_sock,n_players,colour);
     //sending map size
     write(client_sock,&cols,sizeof(int));
     write(client_sock,&lines,sizeof(int));

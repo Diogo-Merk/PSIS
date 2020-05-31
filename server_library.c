@@ -74,7 +74,7 @@ char** initialize_map(int *cols, int *lines,int *n_playersmax)
 }
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //Changes to list format
-Player_ID set_info(int *colour, int id,int type)
+Player set_info(int colour[3], int id,int type)
 {
   Player new_player;
   for(int i=0;i<3;i++)
@@ -107,7 +107,7 @@ void insert_node(Player_ID *pnode)
   {
     while(aux->next != NULL)
     {
-      aux->next;
+      aux = aux->next;
     }
     aux->next = pnode;
   }
@@ -133,7 +133,7 @@ void remove_node(int id)
   prev->next = temp->next;
   free(temp);
 }
-Player insert_player(int sock, int n_players,int colour[3])
+Player_ID *insert_player(int sock, int n_players,int colour[3])
 {
   Player_ID *new = create_node();
   new->sock = sock;
@@ -149,41 +149,24 @@ Player insert_player(int sock, int n_players,int colour[3])
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 void *game(void* client)
 {
   int done = 0;
-  int coord[2],last_coord[2];
   int *rand;
   SDL_Event event;
-  Player_ID player = *(Player_ID*) client;
-  n_players = player.n_players;
+  Player_ID *player = (Player_ID*) client;
   rand = random_coord();
-  coord[0] = rand[0];
-  coord[1] = rand[1];
-  write(player.sock,&coord,sizeof(coord));
+  player->pacman.coord[0] = rand[0];
+  player->pacman.coord[1] = rand[1];
+  write(player->sock,&player->pacman.coord,sizeof(player->pacman.coord));
 
   while(!done)
   {
-    if(read(player.sock,&coord,sizeof(coord))>0)
+    if(read(player->sock,&player->pacman.coord,sizeof(player->pacman.coord))>0)
     {
-      printf("recieved coordinates: %d %d\n",coord[0],coord[1]);
-      int resp = check_interaction(coord, last_coord);
+      printf("recieved coordinates: %d %d\n",player->pacman.coord[0],player->pacman.coord[1]);
+      int resp = check_interaction(player->pacman.coord, player->pacman.last_coord);
       SDL_PollEvent(&event);
       //May go to switch case
       if(event.type == SDL_QUIT)
@@ -193,42 +176,53 @@ void *game(void* client)
       {
         //Ficar parado
         case 1:
-          write(player.sock,&last_coord,sizeof(last_coord));
+        player->pacman.coord[0] = player->pacman.last_coord[0];
+        player->pacman.coord[1] = player->pacman.last_coord[1];
+          //write(player.sock,&last_coord,sizeof(last_coord));
           break;
         //Knockback para a direita
         case 2:
-          last_coord[0]=last_coord[0]+1;
-          write(player.sock,&last_coord,sizeof(last_coord));
+          player->pacman.last_coord[0]=player->pacman.last_coord[0]+1;
+          player->pacman.coord[0] = player->pacman.last_coord[0];
+          player->pacman.coord[1] = player->pacman.last_coord[1];
+          //write(player.sock,&last_coord,sizeof(last_coord));
           break;
         //Knockback para a esquerda
         case 3:
-          last_coord[0]=last_coord[0]-1;
-          write(player.sock,&last_coord,sizeof(last_coord));
+          player->pacman.last_coord[0]=player->pacman.last_coord[0]-1;
+          player->pacman.coord[0] = player->pacman.last_coord[0];
+          player->pacman.coord[1] = player->pacman.last_coord[1];
+          //write(player.sock,&last_coord,sizeof(last_coord));
           break;
         //Knockback para baixo
         case 4:
-          last_coord[1]=last_coord[1]+1;
-          write(player.sock,&last_coord,sizeof(last_coord));
+          player->pacman.last_coord[1]=player->pacman.last_coord[1]+1;
+          player->pacman.coord[0] = player->pacman.last_coord[0];
+          player->pacman.coord[1] = player->pacman.last_coord[1];
+          //write(player.sock,&last_coord,sizeof(last_coord));
           break;
         //Knockback para cima
         case 5:
-          last_coord[1]=last_coord[1]-1;
-          write(player.sock,&last_coord,sizeof(last_coord));
+          player->pacman.last_coord[1]=player->pacman.last_coord[1]-1;
+          player->pacman.coord[0] = player->pacman.last_coord[0];
+          player->pacman.coord[1] = player->pacman.last_coord[1];
+          //write(player.sock,&last_coord,sizeof(last_coord));
           break;
         //Fruta
         case 6:
-          write(player.sock,&coord,sizeof(coord));
+          //write(player.sock,&coord,sizeof(coord));
           break;
         //Andar para espaço livre
         case 0:
-          write(player.sock,&coord,sizeof(coord));
+          //write(player.sock,&coord,sizeof(coord));
           break;
 
         default:
           break;
       }
-      last_coord[0] = coord[0];
-      last_coord[1] = coord[1];
+      send_info();
+      player->pacman.last_coord[0] = player->pacman.coord[0];
+      player->pacman.last_coord[1] = player->pacman.coord[1];
       //draw interactions server side and
       //use send_info to send shit to clients
     }
@@ -238,7 +232,19 @@ void *game(void* client)
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 void send_info()
 {
-  printf("fuck you\n");
+  Player_ID *aux = head;
+  while(aux != NULL)
+  {
+    Player_ID *aux2 = head;
+    while(aux2 != NULL)
+    {
+      write(aux->sock,&aux2->pacman,sizeof(Player));
+      //write(aux->sock,&aux2->monster,sizeof(Player));
+      aux2 = aux2->next;
+    }
+    aux = aux->next;
+  }
+  return;
 }
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 int check_interaction(int coord[2], int last_coord[2])
