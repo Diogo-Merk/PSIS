@@ -153,12 +153,9 @@ Player_ID *insert_player(int sock, int n_players,int colour[3])
 void *game(void* client)
 {
   int done = 0;
-  int *rand;
   SDL_Event event;
   Player_ID *player = (Player_ID*) client;
-  rand = random_coord();
-  player->pacman.coord[0] = rand[0];
-  player->pacman.coord[1] = rand[1];
+  random_coord(&player->pacman.coord[0], &player->pacman.coord[1]);
   write(player->sock,&player->pacman.coord,sizeof(player->pacman.coord));
 
   while(!done)
@@ -312,17 +309,16 @@ int check_interaction(int coord[2], int last_coord[2])
       return 0;
 }
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-int *random_coord()
+void random_coord(int *x, int *y)
 {
-  int *coord;
-  coord = malloc(sizeof(int)*2);
-  coord[0] = random()%n_cols;
-  coord[1] = random()%n_lines;
-  if(board[coord[0]][coord[1]] == 'B')
+  srand(time(NULL));
+  *x = rand()%n_cols;
+  *y = rand()%n_lines;
+  while(board[*x][*y] == 'B')
   {
-    coord = random_coord();
+    *x = rand()%n_cols;
+    *y = rand()%n_lines;
   }
-  return coord;
 }
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 char** initialize_fruits(int cols, int lines,int n_players, char** board)

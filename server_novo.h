@@ -39,7 +39,7 @@ Player set_info(int colour[3], int id,int type);
 void *game(void*);
 int check_interaction(int coord[2], int last_coord[2]);
 void send_info();
-int *random_coord();
+void random_coord(int *x, int *y);
 char** initialize_fruits(int cols, int lines,int n_players, char** board);
 Player_ID *create_node();
 void disconnect_player();
