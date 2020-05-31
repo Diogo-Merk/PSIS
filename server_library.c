@@ -147,8 +147,6 @@ Player_ID *insert_player(int sock, int n_players,int colour[3])
 }
 
 
-
-
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 void *game(void* client)
 {
@@ -237,6 +235,7 @@ void send_info()
     {
       write(aux->sock,&aux2->pacman,sizeof(Player));
       //write(aux->sock,&aux2->monster,sizeof(Player));
+      printf("stupid\n");
       aux2 = aux2->next;
     }
     aux = aux->next;
