@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
         read(sock_fd,&pacman,sizeof(pacman));
         read(sock_fd,&monster,sizeof(monster));
         printf("local = %d\n",local);
-        if(local = 1)
+        if(local == 1)
         {
           pacman_local = pacman;
           monster_local = monster;
