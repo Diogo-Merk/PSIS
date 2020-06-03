@@ -89,8 +89,7 @@ int main(int argc, char *argv[])
         //printf("pacam:%d %d\n", pacman.coord[0],pacman.coord[1]);
         update_map(pacman, n_players);
       }
-      printf("monster:%d %d\n", monster.coord[0],monster.coord[1]);
-      printf("lastmonster:%d %d\n", monster.last_coord[0],monster.last_coord[1]);
+      
       if (monster.coord[0]!=monster.last_coord[0] || monster.coord[1]!=monster.last_coord[1])
       {
         //printf("monster:%d %d\n", monster.coord[0],monster.coord[1]);

@@ -37,7 +37,7 @@ void server_start(int sock_fd);
 char** initialize_map(int *cols, int *lines, int *n_playersmax);
 Player set_info(int colour[3], int id,int type);
 void *game(void*);
-int check_interaction(int coord[2], int last_coord[2]);
+int check_interaction(int coord[2], int last_coord[2], int type);
 void send_info();
 void random_coord(int *x, int *y);
 char** initialize_fruits(int cols, int lines,int n_players, char** board);
