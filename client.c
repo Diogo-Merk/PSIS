@@ -28,6 +28,8 @@ int main(int argc, char *argv[])
   monster.type=0;
   pacman.last_coord[0] = -1;
   monster.last_coord[0] = -1;
+  pacman.last_coord[1] = -1;
+  monster.last_coord[1] = -1;
 
   //Testing argc
   if(argc < 3)
@@ -80,23 +82,27 @@ int main(int argc, char *argv[])
       }
 
       //recieving player positions
-      read(sock_fd,&pacman.coord,sizeof(pacman.coord));
-      //read(sock_fd,&monster.coord,sizeof(monster.coord));
+      read(sock_fd,&pacman,sizeof(pacman));
+      read(sock_fd,&monster,sizeof(monster));
       if (pacman.coord[0]!=pacman.last_coord[0] || pacman.coord[1]!=pacman.last_coord[1])
       {
+        //printf("pacam:%d %d\n", pacman.coord[0],pacman.coord[1]);
         update_map(pacman, n_players);
       }
-      /*if (monster.coord[0]!=monster.last_coord[0] || monster.coord[1]!=monster.last_coord[1])
+      printf("monster:%d %d\n", monster.coord[0],monster.coord[1]);
+      printf("lastmonster:%d %d\n", monster.last_coord[0],monster.last_coord[1]);
+      if (monster.coord[0]!=monster.last_coord[0] || monster.coord[1]!=monster.last_coord[1])
       {
+        //printf("monster:%d %d\n", monster.coord[0],monster.coord[1]);
         update_map(monster, n_players);
-      }*/
+      }
 
       pacman.last_coord[0] = pacman.coord[0];
       pacman.last_coord[1] = pacman.coord[1];
-      /*monster.last_coord[0] = monster.coord[0];
+      monster.last_coord[0] = monster.coord[0];
       monster.last_coord[1] = monster.coord[1];
       mon_horizontal_move = 0;
-      mon_vertical_move = 0;*/
+      mon_vertical_move = 0;
       pac_horizontal_move = 0;
       pac_vertical_move = 0;
       //Movement
@@ -209,18 +215,14 @@ int main(int argc, char *argv[])
             break;
         }
       //Update position
-      /*monster.coord[0] += mon_horizontal_move;
-      monster.coord[1] += mon_vertical_move;*/
+      monster.coord[0] += mon_horizontal_move;
+      monster.coord[1] += mon_vertical_move;
       pacman.coord[0] += pac_horizontal_move;
       pacman.coord[1] += pac_vertical_move;
 
       //Send info to server
-      write(sock_fd,&pacman.coord,sizeof(pacman.coord));
-      /*write(sock_fd,&monster.coord,sizeof(monster.coord));*/
-      pacman.coord[0] = pacman.last_coord[0];
-      pacman.coord[1] = pacman.last_coord[1];
-      /*monster.coord[0] = monster.last_coord[0];
-      monster.coord[1] = monster.last_coord[1];*/
+      write(sock_fd,&pacman,sizeof(pacman));
+      write(sock_fd,&monster,sizeof(monster));
     }
   }
   close_board_windows();

@@ -152,75 +152,121 @@ void *game(void* client)
 {
   int done = 0;
   SDL_Event event;
-  Player_ID *player = (Player_ID*) client;
+  Player_ID *player = *(Player_ID**) client;
   random_coord(&player->pacman.coord[0], &player->pacman.coord[1]);
-  write(player->sock,&player->pacman.coord,sizeof(player->pacman.coord));
+  board[player->pacman.coord[0]][player->pacman.coord[1]]='P';
+  write(player->sock,&player->pacman,sizeof(player->pacman));
+  random_coord(&player->monster.coord[0], &player->monster.coord[1]);
+  board[player->monster.coord[0]][player->monster.coord[1]]='M';
+  write(player->sock,&player->monster,sizeof(player->monster));
 
   while(!done)
   {
-    if(read(player->sock,&player->pacman.coord,sizeof(player->pacman.coord))>0)
-    {
-      printf("recieved coordinates: %d %d\n",player->pacman.coord[0],player->pacman.coord[1]);
-      int resp = check_interaction(player->pacman.coord, player->pacman.last_coord);
-      SDL_PollEvent(&event);
-      //May go to switch case
-      if(event.type == SDL_QUIT)
-        done = SDL_TRUE;
+    read(player->sock,&player->pacman,sizeof(player->pacman));
+    read(player->sock,&player->monster,sizeof(player->monster));
 
-      switch (resp)
-      {
-        //Ficar parado
-        case 1:
+    int resp = check_interaction(player->pacman.coord, player->pacman.last_coord);
+    int respm = check_interaction(player->monster.coord, player->monster.last_coord);
+    SDL_PollEvent(&event);
+    //May go to switch case
+    if(event.type == SDL_QUIT)
+      done = SDL_TRUE;
+
+    switch (resp)
+    {
+      //Ficar parado
+      case 1:
         player->pacman.coord[0] = player->pacman.last_coord[0];
         player->pacman.coord[1] = player->pacman.last_coord[1];
-          //write(player.sock,&last_coord,sizeof(last_coord));
-          break;
-        //Knockback para a direita
-        case 2:
-          player->pacman.last_coord[0]=player->pacman.last_coord[0]+1;
-          player->pacman.coord[0] = player->pacman.last_coord[0];
-          player->pacman.coord[1] = player->pacman.last_coord[1];
-          //write(player.sock,&last_coord,sizeof(last_coord));
-          break;
-        //Knockback para a esquerda
-        case 3:
-          player->pacman.last_coord[0]=player->pacman.last_coord[0]-1;
-          player->pacman.coord[0] = player->pacman.last_coord[0];
-          player->pacman.coord[1] = player->pacman.last_coord[1];
-          //write(player.sock,&last_coord,sizeof(last_coord));
-          break;
-        //Knockback para baixo
-        case 4:
-          player->pacman.last_coord[1]=player->pacman.last_coord[1]+1;
-          player->pacman.coord[0] = player->pacman.last_coord[0];
-          player->pacman.coord[1] = player->pacman.last_coord[1];
-          //write(player.sock,&last_coord,sizeof(last_coord));
-          break;
-        //Knockback para cima
-        case 5:
-          player->pacman.last_coord[1]=player->pacman.last_coord[1]-1;
-          player->pacman.coord[0] = player->pacman.last_coord[0];
-          player->pacman.coord[1] = player->pacman.last_coord[1];
-          //write(player.sock,&last_coord,sizeof(last_coord));
-          break;
-        //Fruta
-        case 6:
-          //write(player.sock,&coord,sizeof(coord));
-          break;
-        //Andar para espaço livre
-        case 0:
-          //write(player.sock,&coord,sizeof(coord));
-          break;
+        write(player->sock,&player->pacman,sizeof(player->pacman));
+        break;
+      //Knockback para a direita
+      case 2:
+        player->pacman.coord[0] = player->pacman.last_coord[0]+1;
+        player->pacman.coord[1] = player->pacman.last_coord[1];
+        write(player->sock,&player->pacman,sizeof(player->pacman));
+        break;
+      //Knockback para a esquerda
+      case 3:
+        player->pacman.coord[0] = player->pacman.last_coord[0]-1;
+        player->pacman.coord[1] = player->pacman.last_coord[1];
+        write(player->sock,&player->pacman,sizeof(player->pacman));
+        break;
+      //Knockback para baixo
+      case 4:
+        player->pacman.coord[0] = player->pacman.last_coord[0];
+        player->pacman.coord[1] = player->pacman.last_coord[1]+1;
+        write(player->sock,&player->pacman,sizeof(player->pacman));
+        break;
+      //Knockback para cima
+      case 5:
+        player->pacman.coord[0] = player->pacman.last_coord[0];
+        player->pacman.coord[1] = player->pacman.last_coord[1]-1;
+        write(player->sock,&player->pacman,sizeof(player->pacman));
+        break;
+      //Fruta
+      case 6:
+        write(player->sock,&player->pacman,sizeof(player->pacman));
+        break;
+      //Andar para espaço livre
+      case 0:
+        write(player->sock,&player->pacman,sizeof(player->pacman));
+        break;
 
-        default:
-          break;
-      }
-      send_info();
-      player->pacman.last_coord[0] = player->pacman.coord[0];
-      player->pacman.last_coord[1] = player->pacman.coord[1];
-      //draw interactions server side and
-      //use send_info to send shit to clients
+      default:
+        break;
     }
+    switch (respm)
+    {
+      //Ficar parado
+      case 1:
+        player->monster.coord[0] = player->monster.last_coord[0];
+        player->monster.coord[1] = player->monster.last_coord[1];
+        write(player->sock,&player->monster,sizeof(player->monster));
+        break;
+      //Knockback para a direita
+      case 2:
+        player->monster.coord[0] = player->monster.last_coord[0]+1;
+        player->monster.coord[1] = player->monster.last_coord[1];
+        write(player->sock,&player->monster,sizeof(player->monster));
+        break;
+      //Knockback para a esquerda
+      case 3:
+        player->monster.coord[0] = player->monster.last_coord[0]-1;
+        player->monster.coord[1] = player->monster.last_coord[1];
+        write(player->sock,&player->monster,sizeof(player->monster));
+        break;
+      //Knockback para baixo
+      case 4:
+        player->monster.coord[0] = player->monster.last_coord[0];
+        player->monster.coord[1] = player->monster.last_coord[1]+1;
+        write(player->sock,&player->monster,sizeof(player->monster));
+        break;
+      //Knockback para cima
+      case 5:
+        player->monster.coord[0] = player->monster.last_coord[0];
+        player->monster.coord[1] = player->monster.last_coord[1]-1;
+        write(player->sock,&player->monster,sizeof(player->monster));
+        break;
+      //Fruta
+      case 6:
+        write(player->sock,&player->monster,sizeof(player->monster));
+        break;
+      //Andar para espaço livre
+      case 0:
+        write(player->sock,&player->monster,sizeof(player->monster));
+        break;
+
+      default:
+        break;
+    }
+    //send_info();
+    /*player->pacman.last_coord[0] = player->pacman.coord[0];
+    player->pacman.last_coord[1] = player->pacman.coord[1];
+    player->monster.last_coord[0] = player->monster.coord[0];
+    player->monster.last_coord[1] = player->monster.coord[1];*/
+    //draw interactions server side and
+    //use send_info to send shit to clients
   }
   pthread_exit(NULL);
 }
@@ -234,13 +280,11 @@ void send_info()
     while(aux2 != NULL)
     {
       write(aux->sock,&aux2->pacman,sizeof(Player));
-      //write(aux->sock,&aux2->monster,sizeof(Player));
-      printf("stupid\n");
+      write(aux->sock,&aux2->monster,sizeof(Player));
       aux2 = aux2->next;
     }
     aux = aux->next;
   }
-  printf("Info sent");
   return;
 }
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -304,7 +348,7 @@ int check_interaction(int coord[2], int last_coord[2])
     {
       return 6;
     }
-    else if(board[i][j] == ' ')
+    else
       return 0;
 }
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -313,7 +357,7 @@ void random_coord(int *x, int *y)
   srand(time(NULL));
   *x = rand()%n_cols;
   *y = rand()%n_lines;
-  while(board[*x][*y] == 'B')
+  while(board[*x][*y] == 'B'||board[*x][*y] == 'P'||board[*x][*y] == 'M')
   {
     *x = rand()%n_cols;
     *y = rand()%n_lines;
