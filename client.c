@@ -18,8 +18,10 @@ int main(int argc, char *argv[])
   SDL_Event event;
   Player monster;
   Player pacman;
-  int done = 0;
-  int cols,lines,n_players;
+  Player pacman_local;
+  Player monster_local;
+  int done = 0,local=0;
+  int cols,lines,n_players=0;
   char **board_geral;
   int pac_horizontal_move = 0, pac_vertical_move = 0, mon_horizontal_move = 0, mon_vertical_move = 0, xaux = 0, yaux = 0, mouse_x = 0, mouse_y = 0, one_tapmon=0, one_tappac=0;
 
@@ -81,25 +83,37 @@ int main(int argc, char *argv[])
         done = SDL_TRUE;
       }
 
-      //recieving player positions
-      read(sock_fd,&pacman,sizeof(pacman));
-      read(sock_fd,&monster,sizeof(monster));
-      if (pacman.coord[0]!=pacman.last_coord[0] || pacman.coord[1]!=pacman.last_coord[1])
+      //recieve number of n_players
+      read(sock_fd,&n_players,sizeof(int));
+      printf("n_players = %d\n",n_players);
+      for(int i=0;i<n_players;i++)
       {
-        //printf("pacam:%d %d\n", pacman.coord[0],pacman.coord[1]);
-        update_map(pacman, n_players);
-      }
-      
-      if (monster.coord[0]!=monster.last_coord[0] || monster.coord[1]!=monster.last_coord[1])
-      {
-        //printf("monster:%d %d\n", monster.coord[0],monster.coord[1]);
-        update_map(monster, n_players);
+        //recieving player positions
+        read(sock_fd,&local,sizeof(int));
+        read(sock_fd,&pacman,sizeof(pacman));
+        read(sock_fd,&monster,sizeof(monster));
+        printf("local = %d\n",local);
+        if(local = 1)
+        {
+          pacman_local = pacman;
+          monster_local = monster;
+        }
+        if (pacman.coord[0]!=pacman.last_coord[0] || pacman.coord[1]!=pacman.last_coord[1])
+        {
+          //printf("pacam:%d %d\n", pacman.coord[0],pacman.coord[1]);
+          update_map(pacman, n_players);
+        }
+        if (monster.coord[0]!=monster.last_coord[0] || monster.coord[1]!=monster.last_coord[1])
+        {
+          //printf("monster:%d %d\n", monster.coord[0],monster.coord[1]);
+          update_map(monster, n_players);
+        }
       }
 
-      pacman.last_coord[0] = pacman.coord[0];
-      pacman.last_coord[1] = pacman.coord[1];
-      monster.last_coord[0] = monster.coord[0];
-      monster.last_coord[1] = monster.coord[1];
+      pacman_local.last_coord[0] = pacman_local.coord[0];
+      pacman_local.last_coord[1] = pacman_local.coord[1];
+      monster_local.last_coord[0] = monster_local.coord[0];
+      monster_local.last_coord[1] = monster_local.coord[1];
       mon_horizontal_move = 0;
       mon_vertical_move = 0;
       pac_horizontal_move = 0;
@@ -171,8 +185,8 @@ int main(int argc, char *argv[])
               {
                 SDL_GetMouseState(&mouse_x, &mouse_y);
                 get_board_place(mouse_x,mouse_y, &xaux, &yaux);
-                xaux=xaux-pacman.coord[0];
-                yaux=yaux-pacman.coord[1];
+                xaux=xaux-pacman_local.coord[0];
+                yaux=yaux-pacman_local.coord[1];
                 if (xaux>0 && yaux ==0)
                 {
                   if (one_tappac==0)
@@ -214,14 +228,14 @@ int main(int argc, char *argv[])
             break;
         }
       //Update position
-      monster.coord[0] += mon_horizontal_move;
-      monster.coord[1] += mon_vertical_move;
-      pacman.coord[0] += pac_horizontal_move;
-      pacman.coord[1] += pac_vertical_move;
+      monster_local.coord[0] += mon_horizontal_move;
+      monster_local.coord[1] += mon_vertical_move;
+      pacman_local.coord[0] += pac_horizontal_move;
+      pacman_local.coord[1] += pac_vertical_move;
 
       //Send info to server
-      write(sock_fd,&pacman,sizeof(pacman));
-      write(sock_fd,&monster,sizeof(monster));
+      write(sock_fd,&pacman_local,sizeof(pacman));
+      write(sock_fd,&monster_local,sizeof(monster));
     }
   }
   close_board_windows();

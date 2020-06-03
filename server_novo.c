@@ -4,7 +4,7 @@
 
 int main()
 {
-  int n_players=0,n_playersmax,cols,lines;
+  int n_players = 0,n_playersmax,cols,lines,id=0;
   int colour[3];
   int client_sock;
   int sock_fd = socket(AF_INET,SOCK_STREAM,0);
@@ -19,13 +19,14 @@ int main()
   {
     client_sock = accept(sock_fd,NULL,NULL);
     n_players++;
+    id++;
     //recieve colour of pacman
     /*for(int i=0;i<3;i++)
     {
       read(client_sock,&colour[i],sizeof(int));
     }*/
     //Changes
-    clients = insert_player(client_sock,n_players,colour);
+    clients = insert_player(client_sock,id,colour);
     //sending map size
     write(client_sock,&cols,sizeof(int));
     write(client_sock,&lines,sizeof(int));

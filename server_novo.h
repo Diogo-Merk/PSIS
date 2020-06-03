@@ -35,7 +35,7 @@ typedef struct Player_ID
 
 void server_start(int sock_fd);
 char** initialize_map(int *cols, int *lines, int *n_playersmax);
-Player set_info(int colour[3], int id,int type);
+Player set_info(int colour[3],int type);
 void *game(void*);
 int check_interaction(int coord[2], int last_coord[2], int type);
 void send_info();
@@ -45,4 +45,4 @@ Player_ID *create_node();
 void disconnect_player();
 void insert_node(Player_ID *pnode);
 void remove_node(int id);
-Player_ID *insert_player(int sock, int n_players,int colour[3]);
+Player_ID *insert_player(int sock, int id,int colour[3]);
