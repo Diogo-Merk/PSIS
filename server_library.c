@@ -336,6 +336,7 @@ void send_info()
     write(aux->sock,&n_players,sizeof(int));
     while(aux2 != NULL)
     {
+      //Checks if id's are equal
       if(aux->id == aux2->id)
       {
         local = 1;
