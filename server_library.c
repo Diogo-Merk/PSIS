@@ -199,28 +199,76 @@ void *game(void* client)
         board[player->pacman.last_coord[0]][player->pacman.last_coord[1]]=' ';
         player->pacman.coord[0] = player->pacman.last_coord[0]+1;
         player->pacman.coord[1] = player->pacman.last_coord[1];
-        board[player->pacman.coord[0]][player->pacman.coord[1]]='P';
+        if (board[player->pacman.last_coord[0]+1][player->pacman.last_coord[1]]=='M')
+        {
+          player->monster.coord[0] = player->pacman.last_coord[0];
+          player->monster.coord[1] = player->pacman.last_coord[1];
+          player->monster.last_coord[0] = player->monster.coord[0];
+          player->monster.last_coord[1] = player->monster.coord[1];
+          board[player->pacman.coord[0]][player->pacman.coord[1]]='P';
+          board[player->monster.coord[0]][player->monster.coord[1]]='M';
+        }
+        else
+        {
+          board[player->pacman.coord[0]][player->pacman.coord[1]]='P';
+        }
         break;
       //Knockback para a esquerda
       case 3:
         board[player->pacman.last_coord[0]][player->pacman.last_coord[1]]=' ';
         player->pacman.coord[0] = player->pacman.last_coord[0]-1;
         player->pacman.coord[1] = player->pacman.last_coord[1];
-        board[player->pacman.coord[0]][player->pacman.coord[1]]='P';
+        if (board[player->pacman.last_coord[0]-1][player->pacman.last_coord[1]]=='M')
+        {
+          player->monster.coord[0] = player->pacman.last_coord[0];
+          player->monster.coord[1] = player->pacman.last_coord[1];
+          player->monster.last_coord[0] = player->monster.coord[0];
+          player->monster.last_coord[1] = player->monster.coord[1];
+          board[player->pacman.coord[0]][player->pacman.coord[1]]='P';
+          board[player->monster.coord[0]][player->monster.coord[1]]='M';
+        }
+        else
+        {
+          board[player->pacman.coord[0]][player->pacman.coord[1]]='P';
+        }
         break;
       //Knockback para baixo
       case 4:
         board[player->pacman.last_coord[0]][player->pacman.last_coord[1]]=' ';
         player->pacman.coord[0] = player->pacman.last_coord[0];
         player->pacman.coord[1] = player->pacman.last_coord[1]+1;
-        board[player->pacman.coord[0]][player->pacman.coord[1]]='P';
+        if (board[player->pacman.last_coord[0]][player->pacman.last_coord[1]+1]=='M')
+        {
+          player->monster.coord[0] = player->pacman.last_coord[0];
+          player->monster.coord[1] = player->pacman.last_coord[1];
+          player->monster.last_coord[0] = player->monster.coord[0];
+          player->monster.last_coord[1] = player->monster.coord[1];
+          board[player->pacman.coord[0]][player->pacman.coord[1]]='P';
+          board[player->monster.coord[0]][player->monster.coord[1]]='M';
+        }
+        else
+        {
+          board[player->pacman.coord[0]][player->pacman.coord[1]]='P';
+        }
         break;
       //Knockback para cima
       case 5:
         board[player->pacman.last_coord[0]][player->pacman.last_coord[1]]=' ';
         player->pacman.coord[0] = player->pacman.last_coord[0];
         player->pacman.coord[1] = player->pacman.last_coord[1]-1;
-        board[player->pacman.coord[0]][player->pacman.coord[1]]='P';
+        if (board[player->pacman.last_coord[0]][player->pacman.last_coord[1]-1]=='M') 
+        {
+          player->monster.coord[0] = player->pacman.last_coord[0];
+          player->monster.coord[1] = player->pacman.last_coord[1];
+          player->monster.last_coord[0] = player->monster.coord[0];
+          player->monster.last_coord[1] = player->monster.coord[1];
+          board[player->pacman.coord[0]][player->pacman.coord[1]]='P';
+          board[player->monster.coord[0]][player->monster.coord[1]]='M';
+        }
+        else
+        {
+          board[player->pacman.coord[0]][player->pacman.coord[1]]='P';
+        }
         break;
       //Fruta
       case 6:
@@ -259,28 +307,76 @@ void *game(void* client)
         board[player->monster.last_coord[0]][player->monster.last_coord[1]]=' ';
         player->monster.coord[0] = player->monster.last_coord[0]+1;
         player->monster.coord[1] = player->monster.last_coord[1];
-        board[player->monster.coord[0]][player->monster.coord[1]]='M';
+        if (board[player->monster.last_coord[0]+1][player->monster.last_coord[1]]=='P')
+        {
+          player->pacman.coord[0] = player->monster.last_coord[0];
+          player->pacman.coord[1] = player->monster.last_coord[1];
+          player->pacman.last_coord[0] = player->pacman.coord[0];
+          player->pacman.last_coord[1] = player->pacman.coord[1];
+          board[player->pacman.coord[0]][player->pacman.coord[1]]='P';
+          board[player->monster.coord[0]][player->monster.coord[1]]='M';
+        }
+        else
+        {
+          board[player->monster.coord[0]][player->monster.coord[1]]='M';
+        }
         break;
       //Knockback para a esquerda
       case 3:
         board[player->monster.last_coord[0]][player->monster.last_coord[1]]=' ';
         player->monster.coord[0] = player->monster.last_coord[0]-1;
         player->monster.coord[1] = player->monster.last_coord[1];
-        board[player->monster.coord[0]][player->monster.coord[1]]='M';
+        if (board[player->monster.last_coord[0]-1][player->monster.last_coord[1]]=='P')
+        {
+          player->pacman.coord[0] = player->monster.last_coord[0];
+          player->pacman.coord[1] = player->monster.last_coord[1];
+          player->pacman.last_coord[0] = player->pacman.coord[0];
+          player->pacman.last_coord[1] = player->pacman.coord[1];
+          board[player->pacman.coord[0]][player->pacman.coord[1]]='P';
+          board[player->monster.coord[0]][player->monster.coord[1]]='M';
+        }
+        else
+        {
+          board[player->monster.coord[0]][player->monster.coord[1]]='M';
+        }
         break;
       //Knockback para baixo
       case 4:
         board[player->monster.last_coord[0]][player->monster.last_coord[1]]=' ';
         player->monster.coord[0] = player->monster.last_coord[0];
         player->monster.coord[1] = player->monster.last_coord[1]+1;
-        board[player->monster.coord[0]][player->monster.coord[1]]='M';
+        if (board[player->monster.last_coord[0]][player->monster.last_coord[1]+1]=='P')
+        {
+          player->pacman.coord[0] = player->monster.last_coord[0];
+          player->pacman.coord[1] = player->monster.last_coord[1];
+          player->pacman.last_coord[0] = player->pacman.coord[0];
+          player->pacman.last_coord[1] = player->pacman.coord[1];
+          board[player->pacman.coord[0]][player->pacman.coord[1]]='P';
+          board[player->monster.coord[0]][player->monster.coord[1]]='M';
+        }
+        else
+        {
+          board[player->monster.coord[0]][player->monster.coord[1]]='M';
+        }
         break;
       //Knockback para cima
       case 5:
         board[player->monster.last_coord[0]][player->monster.last_coord[1]]=' ';
         player->monster.coord[0] = player->monster.last_coord[0];
         player->monster.coord[1] = player->monster.last_coord[1]-1;
-        board[player->monster.coord[0]][player->monster.coord[1]]='M';
+        if (board[player->monster.last_coord[0]][player->monster.last_coord[1]-1]=='P')
+        {
+          player->pacman.coord[0] = player->monster.last_coord[0];
+          player->pacman.coord[1] = player->monster.last_coord[1];
+          player->pacman.last_coord[0] = player->pacman.coord[0];
+          player->pacman.last_coord[1] = player->pacman.coord[1];
+          board[player->pacman.coord[0]][player->pacman.coord[1]]='P';
+          board[player->monster.coord[0]][player->monster.coord[1]]='M';
+        }
+        else
+        {
+          board[player->monster.coord[0]][player->monster.coord[1]]='M';
+        }
         break;
       //Fruta
       case 6:
@@ -389,7 +485,9 @@ int check_interaction(int coord[2], int last_coord[2], int type)
       if (x+1 < n_cols)
       {
         if (x>i && board[x+1][y] != 'B')
+        {
           return 2;
+        }
       }
 
       if(x-1 >= 0)
@@ -415,7 +513,7 @@ int check_interaction(int coord[2], int last_coord[2], int type)
     {
       return 6;
     }
-    else if ((board[i][j]=='M'||board[i][j]=='P')&&coord[0]!=last_coord[0]&&coord[1!=last_coord[1]])
+    else if ((board[i][j]=='M'||board[i][j]=='P')&& (x != i || y!=j))
     {
       return 7;
     }
