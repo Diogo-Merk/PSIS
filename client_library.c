@@ -47,6 +47,7 @@ void initialize_map(int n_cols, int n_lines, char **board_geral)
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 void update_map(Player pacman,Player monster,int n_players)
 {
+  printf("pacman (%d %d)[%d %d] --- monster (%d %d)[%d %d]\n",pacman.coord[0],pacman.coord[1],pacman.last_coord[0],pacman.last_coord[1],monster.coord[0],monster.coord[1],monster.last_coord[0],monster.last_coord[1]);
   if(pacman.last_coord[0] != -1)
     clear_place(pacman.last_coord[0],pacman.last_coord[1]);
   if(monster.last_coord[0] != -1)
