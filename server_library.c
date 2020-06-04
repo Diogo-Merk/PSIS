@@ -306,7 +306,7 @@ void *game(void* client)
       default:
         break;
     }
-
+    printf("resp %d -- respm %d\n",resp,respm);
     for (int i = 0; i < n_lines; i++) {
       for (int j = 0; j < n_cols ; j++) {
         printf("%c ", board[j][i]);
@@ -415,7 +415,7 @@ int check_interaction(int coord[2], int last_coord[2], int type)
     {
       return 6;
     }
-    else if ((board[i][j]=='M'||board[i][j]=='P')&&coord[0]!=last_coord[0]&&coord[1!=last_coord[1]])
+    else if ((board[i][j]=='M'||board[i][j]=='P')&&(coord[0]!=last_coord[0]||coord[1]!=last_coord[1]))
     {
       return 7;
     }
