@@ -2,7 +2,7 @@
 #include "client.h"
 #endif
 
-int done = 0;
+int done = 0,client_exit = 0;
 Player pacman_local;
 Player monster_local;
 int flag=0,pac_horizontal_move = 0, pac_vertical_move = 0, mon_horizontal_move = 0, mon_vertical_move = 0, xaux = 0, yaux = 0, mouse_x = 0, mouse_y = 0, one_tapmon=0, one_tappac=0;
@@ -55,6 +55,11 @@ void update_map(Player pacman,Player monster)
     clear_place(pacman.last_coord[0],pacman.last_coord[1]);
   if(monster.last_coord[0] != -1)
     clear_place(monster.last_coord[0],monster.last_coord[1]);
+  if(pacman.coord[0] == -1 && pacman.coord[1] == -1)
+  {
+      clear_place(monster.coord[0],monster.coord[1]);
+      return NULL;
+  }
   printf("coordenadas monstro: %d %d\n", monster.coord[0],monster.coord[1]);
   printf("coordenadas pacman: %d %d\n", pacman.coord[0],pacman.coord[1]);
   paint_pacman(pacman.coord[0], pacman.coord[1],pacman.r,pacman.g,pacman.b);
@@ -66,8 +71,9 @@ void recv_play(int sock_fd,int id)
   Player pacman, monster;
 	while(1)
   {
-    printf("flag = %d\n",flag );
-    if(flag==-1)
+    read(sock_fd,&client_exit,sizeof(int));
+    printf("client_exit = %d",client_exit);
+    if(client_exit == 1)
       break;
     read(sock_fd,&current_id,sizeof(int));
     read(sock_fd,&pacman,sizeof(pacman));
@@ -95,9 +101,13 @@ void *game_loop(void *sock_fd)
     {
       if(event.type == SDL_QUIT)
       {
+        pacman_local.coord[0] = -1;
+        pacman_local.coord[1] = -1;
+        write(sock,&pacman_local,sizeof(pacman_local));
+        write(sock,&monster_local,sizeof(monster_local));
         done = SDL_TRUE;
         printf("close this motherfucker\n");
-        break;
+        pthread_exit(NULL);
       }
       pacman_local.last_coord[0] = pacman_local.coord[0];
       pacman_local.last_coord[1] = pacman_local.coord[1];
@@ -225,9 +235,6 @@ void *game_loop(void *sock_fd)
       write(sock,&monster_local,sizeof(monster_local));
     }
   }
-  printf("Why aren't you closed yet!\n");
-  flag = -1;
-  return NULL;
 }
 void init_vars(int r,int g, int b)
 {

@@ -59,7 +59,9 @@ int main(int argc, char *argv[])
 
   //Connecting to server
   connect_server(ip_addr,port,local_addr,server_addr,sock_fd);
-
+  write(sock_fd,&r,sizeof(int));
+  write(sock_fd,&g,sizeof(int));
+  write(sock_fd,&b,sizeof(int));
   read(sock_fd,&cols,sizeof(int));
   read(sock_fd,&lines,sizeof(int));
   read(sock_fd,&id,sizeof(int));
@@ -92,6 +94,5 @@ int main(int argc, char *argv[])
   }
   free(board_geral);
   close_board_windows();
-  pthread_exit(NULL);
   exit(0);
 }
