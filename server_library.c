@@ -78,8 +78,7 @@ Player set_info(int colour[3],int type)
   Player new_player;
   for(int i=0;i<3;i++)
   {
-    //new_player.colour[i]=colour[i];
-
+    new_player.colour[i]=colour[i];
   }
   new_player.type = type;
 
@@ -298,10 +297,7 @@ void *game(void* client)
       default:
         break;
     }
-    printf("coord monster: %d %d\n", player->monster.coord[0],player->monster.coord[1]);
-    printf("last_coord monster: %d %d\n", player->monster.last_coord[0],player->monster.last_coord[1]);
     respm = check_interaction(player->monster.coord, player->monster.last_coord, player->monster.type);
-    printf("respm: %d\n", respm);
     switch (respm)
     {
       //Ficar parado pq n houve movimento
