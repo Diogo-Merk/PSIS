@@ -40,5 +40,6 @@ int main()
       }
     }
     pthread_create(&client_connect,NULL,game,(void*)&clients);
+    n_players = get_n_players();
   }
 }

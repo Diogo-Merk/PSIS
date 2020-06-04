@@ -605,3 +605,7 @@ char** update_fruits(int cols, int lines, char** board)
   return board;
 }
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+int get_n_players()
+{
+  return n_players;
+}
