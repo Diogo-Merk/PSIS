@@ -85,29 +85,18 @@ int main(int argc, char *argv[])
 
       //recieve number of n_players
       read(sock_fd,&n_players,sizeof(int));
-      printf("n_players = %d\n",n_players);
       for(int i=0;i<n_players;i++)
       {
         //recieving player positions
         read(sock_fd,&local,sizeof(int));
         read(sock_fd,&pacman,sizeof(pacman));
         read(sock_fd,&monster,sizeof(monster));
-        printf("local = %d\n",local);
         if(local == 1)
         {
           pacman_local = pacman;
           monster_local = monster;
         }
-        if (pacman.coord[0]!=pacman.last_coord[0] || pacman.coord[1]!=pacman.last_coord[1])
-        {
-          //printf("pacam:%d %d\n", pacman.coord[0],pacman.coord[1]);
-          update_map(pacman, n_players);
-        }
-        if (monster.coord[0]!=monster.last_coord[0] || monster.coord[1]!=monster.last_coord[1])
-        {
-          //printf("monster:%d %d\n", monster.coord[0],monster.coord[1]);
-          update_map(monster, n_players);
-        }
+        update_map(pacman, monster, n_players);
       }
 
       pacman_local.last_coord[0] = pacman_local.coord[0];
