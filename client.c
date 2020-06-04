@@ -13,25 +13,16 @@ int main(int argc, char *argv[])
   struct sockaddr_in local_addr;
   struct sockaddr_in server_addr;
   int sock_fd = socket(AF_INET,SOCK_STREAM,0);
+  pthread_t play_thread;
 
   //Game Variables
-  SDL_Event event;
-  Player monster;
-  Player pacman;
-  Player pacman_local;
-  Player monster_local;
-  int done = 0,local=0;
+
   int cols,lines,n_players=0;
   char **board_geral;
-  int pac_horizontal_move = 0, pac_vertical_move = 0, mon_horizontal_move = 0, mon_vertical_move = 0, xaux = 0, yaux = 0, mouse_x = 0, mouse_y = 0, one_tapmon=0, one_tappac=0;
+  int id;
 
   //garante primeira iteração  do loop
-  pacman.type=1;
-  monster.type=0;
-  pacman.last_coord[0] = -1;
-  monster.last_coord[0] = -1;
-  pacman.last_coord[1] = -1;
-  monster.last_coord[1] = -1;
+  init_vars();
 
   //Testing argc
   if(argc < 3)
@@ -54,13 +45,13 @@ int main(int argc, char *argv[])
 
   read(sock_fd,&cols,sizeof(int));
   read(sock_fd,&lines,sizeof(int));
+  read(sock_fd,&id,sizeof(int));
   //board malloc
   board_geral = malloc(sizeof(char *) * cols+1);
   for ( int i = 0 ; i < cols; i++)
   {
     board_geral[i] = malloc (sizeof(char) * lines);
   }
-
   //Puts walls on map
   for(int i=0;i<cols;i++)
   {
@@ -69,164 +60,15 @@ int main(int argc, char *argv[])
       read(sock_fd,&board_geral[i][j],sizeof(char));
     }
   }
-
   //Draws map and walls
   initialize_map(cols,lines,board_geral);
-
-  //Game loop
-  while(!done)
-  {
-    while(SDL_PollEvent(&event))
-    {
-      if(event.type == SDL_QUIT)
-      {
-        done = SDL_TRUE;
-      }
-
-      //recieve number of n_players
-      read(sock_fd,&n_players,sizeof(int));
-      for(int i=0;i<n_players;i++)
-      {
-        //recieving player positions
-        read(sock_fd,&local,sizeof(int));
-        read(sock_fd,&pacman,sizeof(pacman));
-        read(sock_fd,&monster,sizeof(monster));
-        if(local == 1)
-        {
-          pacman_local = pacman;
-          monster_local = monster;
-        }
-        update_map(pacman, monster, n_players);
-      }
-
-      pacman_local.last_coord[0] = pacman_local.coord[0];
-      pacman_local.last_coord[1] = pacman_local.coord[1];
-      monster_local.last_coord[0] = monster_local.coord[0];
-      monster_local.last_coord[1] = monster_local.coord[1];
-      mon_horizontal_move = 0;
-      mon_vertical_move = 0;
-      pac_horizontal_move = 0;
-      pac_vertical_move = 0;
-      //Movement
-      switch( event.type )
-      {
-        //Monster Movement
-        /* Look for a keypress */
-        case SDL_KEYDOWN:
-            /* Check the SDLKey values and move change the coordps */
-            switch( event.key.keysym.sym )
-            {
-              case SDLK_LEFT:
-                if (one_tapmon==0)
-                  mon_horizontal_move = -1;
-                one_tapmon = 1;
-                break;
-              case SDLK_RIGHT:
-                if (one_tapmon==0)
-                  mon_horizontal_move = 1;
-                one_tapmon = 1;
-                break;
-              case SDLK_UP:
-                if(one_tapmon==0)
-                  mon_vertical_move = -1;
-                one_tapmon=1;
-                break;
-              case SDLK_DOWN:
-                if(one_tapmon==0)
-                  mon_vertical_move = 1;
-                one_tapmon=1;
-                break;
-              default:
-                break;
-            }
-        break;
-        /* Look for letting go of a key */
-        case SDL_KEYUP:
-          /* Check the SDLKey values and zero the movemnet when necessary */
-          switch( event.key.keysym.sym)
-          {
-            case SDLK_LEFT:
-              mon_horizontal_move = 0;
-              one_tapmon=0;
-              break;
-            case SDLK_RIGHT:
-              mon_horizontal_move = 0;
-              one_tapmon=0;
-              break;
-            case SDLK_UP:
-              mon_vertical_move = 0;
-              one_tapmon=0;
-              break;
-            case SDLK_DOWN:
-              mon_vertical_move = 0;
-              one_tapmon=0;
-              break;
-            default:
-              break;
-          }
-          break;
-
-          //Pacman Movement
-          /* Look for a keypress */
-          case SDL_MOUSEBUTTONDOWN:
-              /* Check the SDLKey values and move change the coordps */
-              if( event.button.button == SDL_BUTTON_LEFT)
-              {
-                SDL_GetMouseState(&mouse_x, &mouse_y);
-                get_board_place(mouse_x,mouse_y, &xaux, &yaux);
-                xaux=xaux-pacman_local.coord[0];
-                yaux=yaux-pacman_local.coord[1];
-                if (xaux>0 && yaux ==0)
-                {
-                  if (one_tappac==0)
-                    pac_horizontal_move = 1;
-                  one_tappac=1;
-                }
-                if (xaux<0 && yaux ==0)
-                {
-                  if (one_tappac==0)
-                    pac_horizontal_move = -1;
-                  one_tappac=1;
-                }
-                if (yaux>0 && xaux==0)
-                {
-                  if (one_tappac==0)
-                    pac_vertical_move = 1;
-                  one_tappac=1;
-                }
-                if (yaux<0 && xaux==0)
-                {
-                  if (one_tappac==0)
-                    pac_vertical_move = -1;
-                  one_tappac=1;
-                }
-              }
-          break;
-          /* Look for letting go of a key */
-          case SDL_MOUSEBUTTONUP:
-            /* Check the SDLKey values and zero the movemnet when necessary */
-            if(event.button.button == SDL_BUTTON_LEFT)
-            {
-              pac_horizontal_move = 0;
-              pac_vertical_move = 0;
-              one_tappac=0;
-            }
-            break;
-
-          default:
-            break;
-        }
-      //Update position
-      monster_local.coord[0] += mon_horizontal_move;
-      monster_local.coord[1] += mon_vertical_move;
-      pacman_local.coord[0] += pac_horizontal_move;
-      pacman_local.coord[1] += pac_vertical_move;
-
-      //Send info to server
-      write(sock_fd,&pacman_local,sizeof(pacman));
-      write(sock_fd,&monster_local,sizeof(monster));
-    }
+  if(pthread_create(&play_thread, NULL, game_loop, &sock_fd)){
+    printf("Failed to create receive thread\n");
+    exit(-1);
   }
+  //Game loop
+  recv_play(sock_fd,id);
+
   close_board_windows();
   exit(0);
 }

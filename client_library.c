@@ -2,6 +2,10 @@
 #include "client.h"
 #endif
 
+int done = 0;
+Player pacman_local;
+Player monster_local;
+int pac_horizontal_move = 0, pac_vertical_move = 0, mon_horizontal_move = 0, mon_vertical_move = 0, xaux = 0, yaux = 0, mouse_x = 0, mouse_y = 0, one_tapmon=0, one_tappac=0;
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 void connect_server(char ip_addr[MAXIP],int port,struct sockaddr_in local_addr,struct sockaddr_in server_addr, int sock_fd)
 {
@@ -45,7 +49,7 @@ void initialize_map(int n_cols, int n_lines, char **board_geral)
   }
 }
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-void update_map(Player pacman,Player monster,int n_players)
+void update_map(Player pacman,Player monster)
 {
   printf("pacman (%d %d)[%d %d] --- monster (%d %d)[%d %d]\n",pacman.coord[0],pacman.coord[1],pacman.last_coord[0],pacman.last_coord[1],monster.coord[0],monster.coord[1],monster.last_coord[0],monster.last_coord[1]);
   if(pacman.last_coord[0] != -1)
@@ -55,4 +59,169 @@ void update_map(Player pacman,Player monster,int n_players)
 
   paint_pacman(pacman.coord[0], pacman.coord[1],255,0,0);
   paint_monster(monster.coord[0], monster.coord[1],0,255,0);
+}
+void recv_play(int sock_fd,int id)
+{
+	int current_id;
+  Player pacman, monster;
+	while(1)
+  {
+    read(sock_fd,&current_id,sizeof(int));
+    read(sock_fd,&pacman,sizeof(pacman));
+    read(sock_fd,&monster,sizeof(monster));
+    update_map(pacman,monster);
+    if(current_id == id)
+    {
+      pacman_local = pacman;
+      monster_local = monster;
+    }
+	}
+}
+void *game_loop(void *sock_fd)
+{
+  SDL_Event event;
+  int sock = *((int*) sock_fd);
+  while(!done)
+  {
+    while(SDL_PollEvent(&event))
+    {
+      if(event.type == SDL_QUIT)
+      {
+        done = SDL_TRUE;
+      }
+      pacman_local.last_coord[0] = pacman_local.coord[0];
+      pacman_local.last_coord[1] = pacman_local.coord[1];
+      monster_local.last_coord[0] = monster_local.coord[0];
+      monster_local.last_coord[1] = monster_local.coord[1];
+      mon_horizontal_move = 0;
+      mon_vertical_move = 0;
+      pac_horizontal_move = 0;
+      pac_vertical_move = 0;
+      //Movement
+      switch( event.type )
+      {
+        //Monster Movement
+        /* Look for a keypress */
+        case SDL_KEYDOWN:
+            /* Check the SDLKey values and move change the coordps */
+            switch( event.key.keysym.sym )
+            {
+              case SDLK_LEFT:
+                if (one_tapmon==0)
+                  mon_horizontal_move = -1;
+                one_tapmon = 1;
+                break;
+              case SDLK_RIGHT:
+                if (one_tapmon==0)
+                  mon_horizontal_move = 1;
+                one_tapmon = 1;
+                break;
+              case SDLK_UP:
+                if(one_tapmon==0)
+                  mon_vertical_move = -1;
+                one_tapmon=1;
+                break;
+              case SDLK_DOWN:
+                if(one_tapmon==0)
+                  mon_vertical_move = 1;
+                one_tapmon=1;
+                break;
+              default:
+                break;
+            }
+        break;
+        /* Look for letting go of a key */
+        case SDL_KEYUP:
+          /* Check the SDLKey values and zero the movemnet when necessary */
+          switch( event.key.keysym.sym)
+          {
+            case SDLK_LEFT:
+              mon_horizontal_move = 0;
+              one_tapmon=0;
+              break;
+            case SDLK_RIGHT:
+              mon_horizontal_move = 0;
+              one_tapmon=0;
+              break;
+            case SDLK_UP:
+              mon_vertical_move = 0;
+              one_tapmon=0;
+              break;
+            case SDLK_DOWN:
+              mon_vertical_move = 0;
+              one_tapmon=0;
+              break;
+            default:
+              break;
+          }
+          break;
+
+          //Pacman Movement
+          /* Look for a keypress */
+          case SDL_MOUSEBUTTONDOWN:
+              /* Check the SDLKey values and move change the coordps */
+              if( event.button.button == SDL_BUTTON_LEFT)
+              {
+                SDL_GetMouseState(&mouse_x, &mouse_y);
+                get_board_place(mouse_x,mouse_y, &xaux, &yaux);
+                xaux=xaux-pacman_local.coord[0];
+                yaux=yaux-pacman_local.coord[1];
+                if (xaux>0 && yaux ==0)
+                {
+                  if (one_tappac==0)
+                    pac_horizontal_move = 1;
+                  one_tappac=1;
+                }
+                if (xaux<0 && yaux ==0)
+                {
+                  if (one_tappac==0)
+                    pac_horizontal_move = -1;
+                  one_tappac=1;
+                }
+                if (yaux>0 && xaux==0)
+                {
+                  if (one_tappac==0)
+                    pac_vertical_move = 1;
+                  one_tappac=1;
+                }
+                if (yaux<0 && xaux==0)
+                {
+                  if (one_tappac==0)
+                    pac_vertical_move = -1;
+                  one_tappac=1;
+                }
+              }
+          break;
+          /* Look for letting go of a key */
+          case SDL_MOUSEBUTTONUP:
+            /* Check the SDLKey values and zero the movemnet when necessary */
+            if(event.button.button == SDL_BUTTON_LEFT)
+            {
+              pac_horizontal_move = 0;
+              pac_vertical_move = 0;
+              one_tappac=0;
+            }
+            break;
+
+          default:
+            break;
+        }
+      //Update position
+      monster_local.coord[0] += mon_horizontal_move;
+      monster_local.coord[1] += mon_vertical_move;
+      pacman_local.coord[0] += pac_horizontal_move;
+      pacman_local.coord[1] += pac_vertical_move;
+      write(sock,&pacman_local,sizeof(pacman_local));
+      write(sock,&monster_local,sizeof(monster_local));
+    }
+  }
+}
+void init_vars()
+{
+  pacman_local.type=1;
+  monster_local.type=0;
+  pacman_local.last_coord[0] = -1;
+  monster_local.last_coord[0] = -1;
+  pacman_local.last_coord[1] = -1;
+  monster_local.last_coord[1] = -1;
 }

@@ -30,6 +30,7 @@ int main()
     //sending map size
     write(client_sock,&cols,sizeof(int));
     write(client_sock,&lines,sizeof(int));
+    write(client_sock,&id,sizeof(int));
     //sending board
     for(int i=0;i< cols;i++)
     {

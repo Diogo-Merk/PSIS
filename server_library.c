@@ -145,19 +145,6 @@ Player_ID *insert_player(int sock, int id,int colour[3])
   return new;
 
 }
-void switch_node(Player_ID *node,int id)
-{
-  Player_ID *aux = head;
-  while(aux != NULL)
-  {
-    if(aux->id == id)
-    {
-      aux = node;
-    }
-    aux = aux->next;
-  }
-  return;
-}
 
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -173,8 +160,7 @@ void *game(void* client)
   random_coord(&player->monster.coord[0], &player->monster.coord[1]);
   board[player->monster.coord[0]][player->monster.coord[1]]='M';
   //write(player->sock,&player->monster,sizeof(player->monster));
-  switch_node(player,player->id);
-  send_info();
+  send_info(player);
 
   while(!done)
   {
@@ -212,6 +198,7 @@ void *game(void* client)
         {
           board[player->pacman.coord[0]][player->pacman.coord[1]]='P';
         }
+        send_info(player);
         break;
       //Knockback para a esquerda
       case 3:
@@ -231,6 +218,7 @@ void *game(void* client)
         {
           board[player->pacman.coord[0]][player->pacman.coord[1]]='P';
         }
+        send_info(player);
         break;
       //Knockback para baixo
       case 4:
@@ -250,13 +238,14 @@ void *game(void* client)
         {
           board[player->pacman.coord[0]][player->pacman.coord[1]]='P';
         }
+        send_info(player);
         break;
       //Knockback para cima
       case 5:
         board[player->pacman.last_coord[0]][player->pacman.last_coord[1]]=' ';
         player->pacman.coord[0] = player->pacman.last_coord[0];
         player->pacman.coord[1] = player->pacman.last_coord[1]-1;
-        if (board[player->pacman.last_coord[0]][player->pacman.last_coord[1]-1]=='M') 
+        if (board[player->pacman.last_coord[0]][player->pacman.last_coord[1]-1]=='M')
         {
           player->monster.coord[0] = player->pacman.last_coord[0];
           player->monster.coord[1] = player->pacman.last_coord[1];
@@ -269,11 +258,13 @@ void *game(void* client)
         {
           board[player->pacman.coord[0]][player->pacman.coord[1]]='P';
         }
+        send_info(player);
         break;
       //Fruta
       case 6:
         board[player->pacman.last_coord[0]][player->pacman.last_coord[1]]=' ';
         board[player->pacman.coord[0]][player->pacman.coord[1]]='P';
+        send_info(player);
         break;
       case 7:
         player->pacman.coord[0] = player->monster.coord[0];
@@ -284,11 +275,13 @@ void *game(void* client)
         player->monster.last_coord[1] = player->monster.coord[1];
         board[player->pacman.coord[0]][player->pacman.coord[1]]='P';
         board[player->monster.coord[0]][player->monster.coord[1]]='M';
+        send_info(player);
         break;
       //Andar para espaço livre
       case 0:
         board[player->pacman.last_coord[0]][player->pacman.last_coord[1]]=' ';
         board[player->pacman.coord[0]][player->pacman.coord[1]]='P';
+        send_info(player);
         break;
 
       default:
@@ -320,6 +313,8 @@ void *game(void* client)
         {
           board[player->monster.coord[0]][player->monster.coord[1]]='M';
         }
+
+        send_info(player);
         break;
       //Knockback para a esquerda
       case 3:
@@ -339,6 +334,8 @@ void *game(void* client)
         {
           board[player->monster.coord[0]][player->monster.coord[1]]='M';
         }
+
+        send_info(player);
         break;
       //Knockback para baixo
       case 4:
@@ -358,6 +355,7 @@ void *game(void* client)
         {
           board[player->monster.coord[0]][player->monster.coord[1]]='M';
         }
+        send_info(player);
         break;
       //Knockback para cima
       case 5:
@@ -377,11 +375,15 @@ void *game(void* client)
         {
           board[player->monster.coord[0]][player->monster.coord[1]]='M';
         }
+
+        send_info(player);
         break;
       //Fruta
       case 6:
         board[player->monster.last_coord[0]][player->monster.last_coord[1]]=' ';
         board[player->monster.coord[0]][player->monster.coord[1]]='M';
+
+        send_info(player);
         break;
       case 7:
         player->monster.coord[0] = player->pacman.coord[0];
@@ -392,11 +394,15 @@ void *game(void* client)
         player->pacman.last_coord[1] = player->pacman.coord[1];
         board[player->pacman.coord[0]][player->pacman.coord[1]]='P';
         board[player->monster.coord[0]][player->monster.coord[1]]='M';
+
+        send_info(player);
         break;
       //Andar para espaço livre
       case 0:
         board[player->monster.last_coord[0]][player->monster.last_coord[1]]=' ';
         board[player->monster.coord[0]][player->monster.coord[1]]='M';
+
+        send_info(player);
         break;
 
       default:
@@ -410,42 +416,22 @@ void *game(void* client)
       printf("\n");
     }
     printf("############\n");
-    switch_node(player,player->id);
-    send_info();
+
     //draw interactions server side and
     //use send_info to send shit to clients
   }
   pthread_exit(NULL);
 }
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-void send_info()
+void send_info(Player_ID *node_send)
 {
   int local = 0;
   Player_ID *aux = head;
   while(aux != NULL)
   {
-    Player_ID *aux2 = head;
-    //CHANGES
-    write(aux->sock,&n_players,sizeof(int));
-    while(aux2 != NULL)
-    {
-      //Checks if id's are equal
-      if(aux->id == aux2->id)
-      {
-        local = 1;
-        write(aux->sock,&local,sizeof(int));
-        write(aux->sock,&aux2->pacman,sizeof(Player));
-        write(aux->sock,&aux2->monster,sizeof(Player));
-      }
-      else
-      {
-        local = 0;
-        write(aux->sock,&local,sizeof(int));
-        write(aux->sock,&aux2->pacman,sizeof(Player));
-        write(aux->sock,&aux2->monster,sizeof(Player));
-      }
-      aux2 = aux2->next;
-    }
+    write(aux->sock,&node_send->id,sizeof(int));
+    write(aux->sock,&node_send->pacman,sizeof(aux->pacman));
+    write(aux->sock,&node_send->monster,sizeof(aux->monster));
     aux = aux->next;
   }
   return;
