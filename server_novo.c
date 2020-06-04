@@ -20,6 +20,11 @@ int main()
     client_sock = accept(sock_fd,NULL,NULL);
     n_players++;
     id++;
+    //recieve colour of pacman
+    for(int i=0;i<3;i++)
+    {
+      read(client_sock,&colour[i],sizeof(int));
+    }
     //Changes
     clients = insert_player(client_sock,id,colour);
     //sending map size
@@ -35,5 +40,6 @@ int main()
       }
     }
     pthread_create(&client_connect,NULL,game,(void*)&clients);
+    n_players = get_n_players();
   }
 }

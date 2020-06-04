@@ -3,9 +3,10 @@
 #endif
 
 struct sockaddr_in local_addr,client_addr;
-int n_players=0,n_lines,n_cols;
+int n_players=0,n_lines,n_cols,client_exit;
 char **board;
 Player_ID *head = NULL;
+pthread_mutex_t mutex;
 
 void server_start(int sock_fd)
 {
@@ -76,10 +77,9 @@ char** initialize_map(int *cols, int *lines,int *n_playersmax)
 Player set_info(int colour[3],int type)
 {
   Player new_player;
-  for(int i=0;i<3;i++)
-  {
-    new_player.colour[i]=colour[i];
-  }
+  new_player.r = colour[0];
+  new_player.g = colour[1];
+  new_player.b = colour[2];
   new_player.type = type;
 
   return new_player;
@@ -168,7 +168,19 @@ void *game(void* client)
   {
     read(player->sock,&player->pacman,sizeof(player->pacman));
     read(player->sock,&player->monster,sizeof(player->monster));
-
+    if(player->pacman.coord[0] == -1 && player->pacman.coord[1] == -1)
+    {
+      pthread_mutex_lock(&mutex);
+      client_exit = 1;
+      board[player->pacman.last_coord[0]][player->pacman.last_coord[1]]=' ';
+      board[player->monster.last_coord[0]][player->monster.last_coord[1]]=' ';
+      write(player->sock,&client_exit,sizeof(int));
+      client_exit = 0;
+      send_info(player);
+      remove_node(player->id);
+      pthread_mutex_unlock(&mutex);
+      pthread_exit(NULL);
+    }
     SDL_PollEvent(&event);
     //May go to switch case
     if(event.type == SDL_QUIT)
@@ -297,7 +309,10 @@ void *game(void* client)
       default:
         break;
     }
+    printf("coord monster: %d %d\n", player->monster.coord[0],player->monster.coord[1]);
+    printf("last_coord monster: %d %d\n", player->monster.last_coord[0],player->monster.last_coord[1]);
     respm = check_interaction(player->monster.coord, player->monster.last_coord, player->monster.type);
+    printf("respm: %d\n", respm);
     switch (respm)
     {
       //Ficar parado pq n houve movimento
@@ -443,6 +458,7 @@ void send_info(Player_ID *node_send)
   Player_ID *aux = head;
   while(aux != NULL)
   {
+    write(aux->sock,&client_exit,sizeof(int));
     write(aux->sock,&node_send->id,sizeof(int));
     write(aux->sock,&node_send->pacman,sizeof(aux->pacman));
     write(aux->sock,&node_send->monster,sizeof(aux->monster));
@@ -589,3 +605,7 @@ char** update_fruits(int cols, int lines, char** board)
   return board;
 }
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+int get_n_players()
+{
+  return n_players;
+}

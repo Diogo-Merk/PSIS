@@ -46,3 +46,4 @@ void disconnect_player();
 void insert_node(Player_ID *pnode);
 void remove_node(int id);
 Player_ID *insert_player(int sock, int id,int colour[3]);
+int get_n_players();
