@@ -144,6 +144,7 @@ Player_ID *insert_player(int sock, int id,int colour[3])
   return new;
 
 }
+<<<<<<< HEAD
 //AQUUIIIIIIIIIIIIUIIIIIIII
 void search_node(int x, int y,int type,int xnew, int ynew)
 {
@@ -171,6 +172,8 @@ void search_node(int x, int y,int type,int xnew, int ynew)
       aux = aux->next;
     }
 }
+=======
+>>>>>>> f3baf09146e9dc9e207f9b85c0c494b7bcde50e1
 
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -212,8 +215,7 @@ void *game(void* client)
     //May go to switch case
     if(event.type == SDL_QUIT)
       done = SDL_TRUE;
-    printf("coord pacman: %d %d\n", player->pacman.coord[0],player->pacman.coord[1]);
-    printf("last_coord pacman: %d %d\n", player->pacman.last_coord[0],player->pacman.last_coord[1]);
+
     resp = check_interaction(player->pacman.coord, player->pacman.last_coord, player->pacman.type);
     printf("resp: %d\n", resp);
     switch (resp)
@@ -228,7 +230,7 @@ void *game(void* client)
         board[player->pacman.last_coord[0]][player->pacman.last_coord[1]]=' ';
         player->pacman.coord[0] = player->pacman.last_coord[0]+1;
         player->pacman.coord[1] = player->pacman.last_coord[1];
-        if (board[player->pacman.last_coord[0]+1][player->pacman.last_coord[1]]=='M')
+        if (board[player->pacman.last_coord[0]+1][player->pacman.last_coord[1]]=='M'&&player->monster.coord[0]==player->pacman.coord[0]&&player->monster.coord[1]==player->pacman.coord[1])
         {
           player->monster.coord[0] = player->pacman.last_coord[0];
           player->monster.coord[1] = player->pacman.last_coord[1];
@@ -248,7 +250,7 @@ void *game(void* client)
         board[player->pacman.last_coord[0]][player->pacman.last_coord[1]]=' ';
         player->pacman.coord[0] = player->pacman.last_coord[0]-1;
         player->pacman.coord[1] = player->pacman.last_coord[1];
-        if (board[player->pacman.last_coord[0]-1][player->pacman.last_coord[1]]=='M')
+        if (board[player->pacman.last_coord[0]-1][player->pacman.last_coord[1]]=='M'&&player->monster.coord[0]==player->pacman.coord[0]&&player->monster.coord[1]==player->pacman.coord[1])
         {
           player->monster.coord[0] = player->pacman.last_coord[0];
           player->monster.coord[1] = player->pacman.last_coord[1];
@@ -268,7 +270,7 @@ void *game(void* client)
         board[player->pacman.last_coord[0]][player->pacman.last_coord[1]]=' ';
         player->pacman.coord[0] = player->pacman.last_coord[0];
         player->pacman.coord[1] = player->pacman.last_coord[1]+1;
-        if (board[player->pacman.last_coord[0]][player->pacman.last_coord[1]+1]=='M')
+        if (board[player->pacman.last_coord[0]][player->pacman.last_coord[1]+1]=='M'&&player->monster.coord[0]==player->pacman.coord[0]&&player->monster.coord[1]==player->pacman.coord[1])
         {
           player->monster.coord[0] = player->pacman.last_coord[0];
           player->monster.coord[1] = player->pacman.last_coord[1];
@@ -288,7 +290,7 @@ void *game(void* client)
         board[player->pacman.last_coord[0]][player->pacman.last_coord[1]]=' ';
         player->pacman.coord[0] = player->pacman.last_coord[0];
         player->pacman.coord[1] = player->pacman.last_coord[1]-1;
-        if (board[player->pacman.last_coord[0]][player->pacman.last_coord[1]-1]=='M')
+        if (board[player->pacman.last_coord[0]][player->pacman.last_coord[1]-1]=='M'&&player->monster.coord[0]==player->pacman.coord[0]&&player->monster.coord[1]==player->pacman.coord[1])
         {
           player->monster.coord[0] = player->pacman.last_coord[0];
           player->monster.coord[1] = player->pacman.last_coord[1];
@@ -309,16 +311,29 @@ void *game(void* client)
         board[player->pacman.coord[0]][player->pacman.coord[1]]='P';
         send_info(player);
         break;
+      //Interaçoes entre personagens
       case 7:
-        player->pacman.coord[0] = player->monster.coord[0];
-        player->pacman.coord[1] = player->monster.coord[1];
-        player->monster.coord[0] = player->pacman.last_coord[0];
-        player->monster.coord[1] = player->pacman.last_coord[1];
-        player->monster.last_coord[0] = player->monster.coord[0];
-        player->monster.last_coord[1] = player->monster.coord[1];
-        board[player->pacman.coord[0]][player->pacman.coord[1]]='P';
-        board[player->monster.coord[0]][player->monster.coord[1]]='M';
-        send_info(player);
+        if (player->monster.coord[0]==player->pacman.coord[0]&&player->monster.coord[1]==player->pacman.coord[1])
+        {
+          player->monster.coord[0] = player->pacman.last_coord[0];
+          player->monster.coord[1] = player->pacman.last_coord[1];
+          player->monster.last_coord[0] = player->monster.coord[0];
+          player->monster.last_coord[1] = player->monster.coord[1];
+          board[player->pacman.coord[0]][player->pacman.coord[1]]='P';
+          board[player->monster.coord[0]][player->monster.coord[1]]='M';
+          send_info(player);
+        }
+        else if(board[player->pacman.coord[0]][player->pacman.coord[1]]=='P')
+        {
+          //change shit in node
+          send_info(player);
+        }
+        else if(board[player->pacman.coord[0]][player->pacman.coord[1]]=='M')
+        {
+          board[player->pacman.coord[0]][player->pacman.coord[1]]='P';
+          send_info(player);
+        }
+
         break;
       //Ficar parado por variadas razoes
       case 8:
@@ -336,8 +351,6 @@ void *game(void* client)
       default:
         break;
     }
-    printf("coord monster: %d %d\n", player->monster.coord[0],player->monster.coord[1]);
-    printf("last_coord monster: %d %d\n", player->monster.last_coord[0],player->monster.last_coord[1]);
     respm = check_interaction(player->monster.coord, player->monster.last_coord, player->monster.type);
     printf("respm: %d\n", respm);
     switch (respm)
@@ -437,15 +450,12 @@ void *game(void* client)
         send_info(player);
         break;
       case 7:
-        player->monster.coord[0] = player->pacman.coord[0];
-        player->monster.coord[1] = player->pacman.coord[1];
         player->pacman.coord[0] = player->monster.last_coord[0];
         player->pacman.coord[1] = player->monster.last_coord[1];
         player->pacman.last_coord[0] = player->pacman.coord[0];
         player->pacman.last_coord[1] = player->pacman.coord[1];
         board[player->pacman.coord[0]][player->pacman.coord[1]]='P';
         board[player->monster.coord[0]][player->monster.coord[1]]='M';
-
         send_info(player);
         break;
       //Ficar parado por variadas razoes
