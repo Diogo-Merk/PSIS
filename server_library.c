@@ -172,6 +172,7 @@ void search_node(int x, int y,int type,int xnew, int ynew)
         }
       }
       aux = aux->next;
+      
     }
 }
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
