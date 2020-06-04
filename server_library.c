@@ -153,13 +153,16 @@ void *game(void* client)
 {
   int done = 0;
   SDL_Event event;
+  int resp=-1, respm=-1;
   Player_ID *player = *(Player_ID**) client;
   random_coord(&player->pacman.coord[0], &player->pacman.coord[1]);
+  player->pacman.last_coord[0]=player->pacman.coord[0];
+  player->pacman.last_coord[1]=player->pacman.coord[1];
   board[player->pacman.coord[0]][player->pacman.coord[1]]='P';
-  //write(player->sock,&player->pacman,sizeof(player->pacman));
   random_coord(&player->monster.coord[0], &player->monster.coord[1]);
+  player->monster.last_coord[0]=player->monster.coord[0];
+  player->monster.last_coord[1]=player->monster.coord[1];
   board[player->monster.coord[0]][player->monster.coord[1]]='M';
-  //write(player->sock,&player->monster,sizeof(player->monster));
   send_info(player);
 
   while(!done)
@@ -171,8 +174,10 @@ void *game(void* client)
     //May go to switch case
     if(event.type == SDL_QUIT)
       done = SDL_TRUE;
-
-    int resp = check_interaction(player->pacman.coord, player->pacman.last_coord, player->pacman.type);
+    printf("coord pacman: %d %d\n", player->pacman.coord[0],player->pacman.coord[1]);
+    printf("last_coord pacman: %d %d\n", player->pacman.last_coord[0],player->pacman.last_coord[1]);
+    resp = check_interaction(player->pacman.coord, player->pacman.last_coord, player->pacman.type);
+    printf("resp: %d\n", resp);
     switch (resp)
     {
       //Ficar parado
@@ -277,6 +282,12 @@ void *game(void* client)
         board[player->monster.coord[0]][player->monster.coord[1]]='M';
         send_info(player);
         break;
+      //Ficar parado por variadas razoes
+      case 8:
+        player->pacman.coord[0] = player->pacman.last_coord[0];
+        player->pacman.coord[1] = player->pacman.last_coord[1];
+        send_info(player);
+        break;
       //Andar para espaço livre
       case 0:
         board[player->pacman.last_coord[0]][player->pacman.last_coord[1]]=' ';
@@ -287,10 +298,13 @@ void *game(void* client)
       default:
         break;
     }
-    int respm = check_interaction(player->monster.coord, player->monster.last_coord, player->monster.type);
+    printf("coord monster: %d %d\n", player->monster.coord[0],player->monster.coord[1]);
+    printf("last_coord monster: %d %d\n", player->monster.last_coord[0],player->monster.last_coord[1]);
+    respm = check_interaction(player->monster.coord, player->monster.last_coord, player->monster.type);
+    printf("respm: %d\n", respm);
     switch (respm)
     {
-      //Ficar parado
+      //Ficar parado pq n houve movimento
       case 1:
         player->monster.coord[0] = player->monster.last_coord[0];
         player->monster.coord[1] = player->monster.last_coord[1];
@@ -334,7 +348,6 @@ void *game(void* client)
         {
           board[player->monster.coord[0]][player->monster.coord[1]]='M';
         }
-
         send_info(player);
         break;
       //Knockback para baixo
@@ -397,11 +410,16 @@ void *game(void* client)
 
         send_info(player);
         break;
+      //Ficar parado por variadas razoes
+      case 8:
+        player->monster.coord[0] = player->monster.last_coord[0];
+        player->monster.coord[1] = player->monster.last_coord[1];
+        send_info(player);
+        break;
       //Andar para espaço livre
       case 0:
         board[player->monster.last_coord[0]][player->monster.last_coord[1]]=' ';
         board[player->monster.coord[0]][player->monster.coord[1]]='M';
-
         send_info(player);
         break;
 
@@ -463,7 +481,7 @@ int check_interaction(int coord[2], int last_coord[2], int type)
       }
       else
       {
-        return 1;
+        return 8;
       }
     }
     else if(board[i][j] == 'B')
@@ -493,7 +511,7 @@ int check_interaction(int coord[2], int last_coord[2], int type)
           return 5;
       }
 
-      return 1;
+      return 8;
     }
     else if (board[i][j]=='C'||board[i][j]=='L')
     {
@@ -502,6 +520,10 @@ int check_interaction(int coord[2], int last_coord[2], int type)
     else if ((board[i][j]=='M'||board[i][j]=='P')&& (x != i || y!=j))
     {
       return 7;
+    }
+    else if (x == i && y==j)
+    {
+      return 1;
     }
     else
     {

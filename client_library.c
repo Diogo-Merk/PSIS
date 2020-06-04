@@ -51,12 +51,12 @@ void initialize_map(int n_cols, int n_lines, char **board_geral)
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 void update_map(Player pacman,Player monster)
 {
-  printf("pacman (%d %d)[%d %d] --- monster (%d %d)[%d %d]\n",pacman.coord[0],pacman.coord[1],pacman.last_coord[0],pacman.last_coord[1],monster.coord[0],monster.coord[1],monster.last_coord[0],monster.last_coord[1]);
   if(pacman.last_coord[0] != -1)
     clear_place(pacman.last_coord[0],pacman.last_coord[1]);
   if(monster.last_coord[0] != -1)
     clear_place(monster.last_coord[0],monster.last_coord[1]);
-
+  printf("coordenadas monstro: %d %d\n", monster.coord[0],monster.coord[1]);
+  printf("coordenadas pacman: %d %d\n", pacman.coord[0],pacman.coord[1]);
   paint_pacman(pacman.coord[0], pacman.coord[1],255,0,0);
   paint_monster(monster.coord[0], monster.coord[1],0,255,0);
 }
