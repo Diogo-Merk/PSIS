@@ -5,7 +5,7 @@
 int done = 0;
 Player pacman_local;
 Player monster_local;
-int pac_horizontal_move = 0, pac_vertical_move = 0, mon_horizontal_move = 0, mon_vertical_move = 0, xaux = 0, yaux = 0, mouse_x = 0, mouse_y = 0, one_tapmon=0, one_tappac=0;
+int flag=0,pac_horizontal_move = 0, pac_vertical_move = 0, mon_horizontal_move = 0, mon_vertical_move = 0, xaux = 0, yaux = 0, mouse_x = 0, mouse_y = 0, one_tapmon=0, one_tappac=0;
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 void connect_server(char ip_addr[MAXIP],int port,struct sockaddr_in local_addr,struct sockaddr_in server_addr, int sock_fd)
 {
@@ -57,8 +57,8 @@ void update_map(Player pacman,Player monster)
     clear_place(monster.last_coord[0],monster.last_coord[1]);
   printf("coordenadas monstro: %d %d\n", monster.coord[0],monster.coord[1]);
   printf("coordenadas pacman: %d %d\n", pacman.coord[0],pacman.coord[1]);
-  paint_pacman(pacman.coord[0], pacman.coord[1],255,0,0);
-  paint_monster(monster.coord[0], monster.coord[1],0,255,0);
+  paint_pacman(pacman.coord[0], pacman.coord[1],pacman.r,pacman.g,pacman.b);
+  paint_monster(monster.coord[0], monster.coord[1],monster.r,monster.g,monster.b);
 }
 void recv_play(int sock_fd,int id)
 {
@@ -75,6 +75,8 @@ void recv_play(int sock_fd,int id)
       pacman_local = pacman;
       monster_local = monster;
     }
+    if(flag == 0)
+      flag = 1;
 	}
 }
 void *game_loop(void *sock_fd)
@@ -83,6 +85,8 @@ void *game_loop(void *sock_fd)
   int sock = *((int*) sock_fd);
   while(!done)
   {
+    if(flag == 0)
+      continue;
     while(SDL_PollEvent(&event))
     {
       if(event.type == SDL_QUIT)
@@ -216,7 +220,7 @@ void *game_loop(void *sock_fd)
     }
   }
 }
-void init_vars()
+void init_vars(int r,int g, int b)
 {
   pacman_local.type=1;
   monster_local.type=0;
@@ -224,4 +228,10 @@ void init_vars()
   monster_local.last_coord[0] = -1;
   pacman_local.last_coord[1] = -1;
   monster_local.last_coord[1] = -1;
+  pacman_local.r = r;
+  pacman_local.g = g;
+  pacman_local.b = b;
+  monster_local.r = r;
+  monster_local.g = g;
+  monster_local.b = b;
 }

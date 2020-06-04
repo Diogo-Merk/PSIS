@@ -19,13 +19,13 @@ int main(int argc, char *argv[])
 
   int cols,lines,n_players=0;
   char **board_geral;
-  int id;
+  int id,r,g,b;
 
   //garante primeira iteração  do loop
-  init_vars();
+
 
   //Testing argc
-  if(argc < 3)
+  if(argc < 6)
   {
     printf("Missing ip address and port\n");
     exit(-1);
@@ -40,6 +40,23 @@ int main(int argc, char *argv[])
     printf("Port is not a number");
     exit(-1);
   }
+  if(sscanf(argv[3], "%d", &r) == 0)
+  {
+    printf("Red not a number");
+    exit(-1);
+  }
+  if(sscanf(argv[4], "%d", &g) == 0)
+  {
+    printf("Green not number");
+    exit(-1);
+  }
+  if(sscanf(argv[5], "%d", &b) == 0)
+  {
+    printf("Blue not number");
+    exit(-1);
+  }
+  init_vars(r,g,b);
+
   //Connecting to server
   connect_server(ip_addr,port,local_addr,server_addr,sock_fd);
 

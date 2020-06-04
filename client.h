@@ -26,4 +26,4 @@ void update_map(Player pacman, Player monster);
 char** update_fruits(int cols, int lines, char** board);
 void recv_play(int sock_fd,int id);
 void *game_loop(void* sock_fd);
-void init_vars();
+void init_vars(int r,int g, int b);
