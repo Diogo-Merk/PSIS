@@ -144,6 +144,7 @@ Player_ID *insert_player(int sock, int id,int colour[3])
   return new;
 
 }
+//AQUUIIIIIIIIIIIIUIIIIIIII
 void search_node(int x, int y,int type,int xnew, int ynew)
 {
     Player_ID *aux = head;
