@@ -144,43 +144,41 @@ Player_ID *insert_player(int sock, int id,int colour[3])
   return new;
 
 }
-<<<<<<< HEAD
-//AQUUIIIIIIIIIIIIUIIIIIIII
 void search_node(int x, int y,int type,int xnew, int ynew)
 {
     Player_ID *aux = head;
     while(aux != NULL)
     {
-      if(type == 0)
+      if(type == 1)
       {
         if(aux->pacman.coord[0] == x && aux->pacman.coord[1] == y)
         {
           aux->pacman.coord[0] = xnew;
           aux->pacman.coord[1] = ynew;
+          aux->pacman.last_coord[0] = xnew;
+          aux->pacman.last_coord[1] = ynew;
           return;
         }
       }
-      else if(type == 1)
+      else if(type == 0)
       {
         if(aux->monster.coord[0] == x && aux->monster.coord[1] == y)
         {
           aux->monster.coord[0] = xnew;
           aux->monster.coord[1] = ynew;
+          aux->monster.last_coord[0] = xnew;
+          aux->monster.last_coord[1] = ynew;
           return;
         }
       }
       aux = aux->next;
     }
 }
-=======
->>>>>>> f3baf09146e9dc9e207f9b85c0c494b7bcde50e1
-
-
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //Thread
 void *game(void* client)
 {
-  int done = 0;
+  int done = 0, a=0, b=0;
   SDL_Event event;
   int resp=-1, respm=-1;
   Player_ID *player = *(Player_ID**) client;
@@ -230,7 +228,7 @@ void *game(void* client)
         board[player->pacman.last_coord[0]][player->pacman.last_coord[1]]=' ';
         player->pacman.coord[0] = player->pacman.last_coord[0]+1;
         player->pacman.coord[1] = player->pacman.last_coord[1];
-        if (board[player->pacman.last_coord[0]+1][player->pacman.last_coord[1]]=='M'&&player->monster.coord[0]==player->pacman.coord[0]&&player->monster.coord[1]==player->pacman.coord[1])
+        if (board[player->pacman.coord[0]][player->pacman.coord[1]]=='M'&&player->monster.coord[0]==player->pacman.coord[0]&&player->monster.coord[1]==player->pacman.coord[1])
         {
           player->monster.coord[0] = player->pacman.last_coord[0];
           player->monster.coord[1] = player->pacman.last_coord[1];
@@ -238,6 +236,18 @@ void *game(void* client)
           player->monster.last_coord[1] = player->monster.coord[1];
           board[player->pacman.coord[0]][player->pacman.coord[1]]='P';
           board[player->monster.coord[0]][player->monster.coord[1]]='M';
+        }
+        else if(board[player->pacman.coord[0]][player->pacman.coord[1]]=='P')
+        {
+          search_node(player->pacman.coord[0], player->pacman.coord[0],1, player->pacman.last_coord[0], player->pacman.last_coord[1]);
+        }
+        else if(board[player->pacman.coord[0]][player->pacman.coord[1]]=='M')
+        {
+          board[player->pacman.last_coord[0]][player->pacman.last_coord[1]]=' ';
+          random_coord(&player->pacman.coord[0], &player->pacman.coord[1]);
+          board[player->pacman.coord[0]][player->pacman.coord[1]]='P';
+          player->pacman.last_coord[0]=player->pacman.coord[0];
+          player->pacman.last_coord[1]=player->pacman.coord[1];
         }
         else
         {
@@ -250,7 +260,7 @@ void *game(void* client)
         board[player->pacman.last_coord[0]][player->pacman.last_coord[1]]=' ';
         player->pacman.coord[0] = player->pacman.last_coord[0]-1;
         player->pacman.coord[1] = player->pacman.last_coord[1];
-        if (board[player->pacman.last_coord[0]-1][player->pacman.last_coord[1]]=='M'&&player->monster.coord[0]==player->pacman.coord[0]&&player->monster.coord[1]==player->pacman.coord[1])
+        if (board[player->pacman.coord[0]][player->pacman.coord[1]]=='M'&&player->monster.coord[0]==player->pacman.coord[0]&&player->monster.coord[1]==player->pacman.coord[1])
         {
           player->monster.coord[0] = player->pacman.last_coord[0];
           player->monster.coord[1] = player->pacman.last_coord[1];
@@ -258,6 +268,18 @@ void *game(void* client)
           player->monster.last_coord[1] = player->monster.coord[1];
           board[player->pacman.coord[0]][player->pacman.coord[1]]='P';
           board[player->monster.coord[0]][player->monster.coord[1]]='M';
+        }
+        else if(board[player->pacman.coord[0]][player->pacman.coord[1]]=='P')
+        {
+          search_node(player->pacman.coord[0], player->pacman.coord[0],1, player->pacman.last_coord[0], player->pacman.last_coord[1]);
+        }
+        else if(board[player->pacman.coord[0]][player->pacman.coord[1]]=='M')
+        {
+          board[player->pacman.last_coord[0]][player->pacman.last_coord[1]]=' ';
+          random_coord(&player->pacman.coord[0], &player->pacman.coord[1]);
+          board[player->pacman.coord[0]][player->pacman.coord[1]]='P';
+          player->pacman.last_coord[0]=player->pacman.coord[0];
+          player->pacman.last_coord[1]=player->pacman.coord[1];
         }
         else
         {
@@ -270,7 +292,7 @@ void *game(void* client)
         board[player->pacman.last_coord[0]][player->pacman.last_coord[1]]=' ';
         player->pacman.coord[0] = player->pacman.last_coord[0];
         player->pacman.coord[1] = player->pacman.last_coord[1]+1;
-        if (board[player->pacman.last_coord[0]][player->pacman.last_coord[1]+1]=='M'&&player->monster.coord[0]==player->pacman.coord[0]&&player->monster.coord[1]==player->pacman.coord[1])
+        if (board[player->pacman.coord[0]][player->pacman.coord[1]]=='M'&&player->monster.coord[0]==player->pacman.coord[0]&&player->monster.coord[1]==player->pacman.coord[1])
         {
           player->monster.coord[0] = player->pacman.last_coord[0];
           player->monster.coord[1] = player->pacman.last_coord[1];
@@ -278,6 +300,18 @@ void *game(void* client)
           player->monster.last_coord[1] = player->monster.coord[1];
           board[player->pacman.coord[0]][player->pacman.coord[1]]='P';
           board[player->monster.coord[0]][player->monster.coord[1]]='M';
+        }
+        else if(board[player->pacman.coord[0]][player->pacman.coord[1]]=='P')
+        {
+          search_node(player->pacman.coord[0], player->pacman.coord[0],1, player->pacman.last_coord[0], player->pacman.last_coord[1]);
+        }
+        else if(board[player->pacman.coord[0]][player->pacman.coord[1]]=='M')
+        {
+          board[player->pacman.last_coord[0]][player->pacman.last_coord[1]]=' ';
+          random_coord(&player->pacman.coord[0], &player->pacman.coord[1]);
+          board[player->pacman.coord[0]][player->pacman.coord[1]]='P';
+          player->pacman.last_coord[0]=player->pacman.coord[0];
+          player->pacman.last_coord[1]=player->pacman.coord[1];
         }
         else
         {
@@ -290,7 +324,7 @@ void *game(void* client)
         board[player->pacman.last_coord[0]][player->pacman.last_coord[1]]=' ';
         player->pacman.coord[0] = player->pacman.last_coord[0];
         player->pacman.coord[1] = player->pacman.last_coord[1]-1;
-        if (board[player->pacman.last_coord[0]][player->pacman.last_coord[1]-1]=='M'&&player->monster.coord[0]==player->pacman.coord[0]&&player->monster.coord[1]==player->pacman.coord[1])
+        if (board[player->pacman.coord[0]][player->pacman.coord[1]]=='M'&&player->monster.coord[0]==player->pacman.coord[0]&&player->monster.coord[1]==player->pacman.coord[1])
         {
           player->monster.coord[0] = player->pacman.last_coord[0];
           player->monster.coord[1] = player->pacman.last_coord[1];
@@ -298,6 +332,18 @@ void *game(void* client)
           player->monster.last_coord[1] = player->monster.coord[1];
           board[player->pacman.coord[0]][player->pacman.coord[1]]='P';
           board[player->monster.coord[0]][player->monster.coord[1]]='M';
+        }
+        else if(board[player->pacman.coord[0]][player->pacman.coord[1]]=='P')
+        {
+          search_node(player->pacman.coord[0], player->pacman.coord[0],1, player->pacman.last_coord[0], player->pacman.last_coord[1]);
+        }
+        else if(board[player->pacman.coord[0]][player->pacman.coord[1]]=='M')
+        {
+          board[player->pacman.last_coord[0]][player->pacman.last_coord[1]]=' ';
+          random_coord(&player->pacman.coord[0], &player->pacman.coord[1]);
+          board[player->pacman.coord[0]][player->pacman.coord[1]]='P';
+          player->pacman.last_coord[0]=player->pacman.coord[0];
+          player->pacman.last_coord[1]=player->pacman.coord[1];
         }
         else
         {
@@ -325,15 +371,18 @@ void *game(void* client)
         }
         else if(board[player->pacman.coord[0]][player->pacman.coord[1]]=='P')
         {
-          //change shit in node
+          search_node(player->pacman.coord[0], player->pacman.coord[0],1, player->pacman.last_coord[0], player->pacman.last_coord[1]);
           send_info(player);
         }
         else if(board[player->pacman.coord[0]][player->pacman.coord[1]]=='M')
         {
+          board[player->pacman.last_coord[0]][player->pacman.last_coord[1]]=' ';
+          random_coord(&player->pacman.coord[0], &player->pacman.coord[1]);
+          player->pacman.last_coord[0]=player->pacman.coord[0];
+          player->pacman.last_coord[1]=player->pacman.coord[1];
           board[player->pacman.coord[0]][player->pacman.coord[1]]='P';
           send_info(player);
         }
-
         break;
       //Ficar parado por variadas razoes
       case 8:
@@ -365,7 +414,7 @@ void *game(void* client)
         board[player->monster.last_coord[0]][player->monster.last_coord[1]]=' ';
         player->monster.coord[0] = player->monster.last_coord[0]+1;
         player->monster.coord[1] = player->monster.last_coord[1];
-        if (board[player->monster.last_coord[0]+1][player->monster.last_coord[1]]=='P')
+        if (board[player->monster.coord[0]][player->monster.coord[1]]=='P'&&player->monster.coord[0]==player->pacman.coord[0]&&player->monster.coord[1]==player->pacman.coord[1])
         {
           player->pacman.coord[0] = player->monster.last_coord[0];
           player->pacman.coord[1] = player->monster.last_coord[1];
@@ -373,6 +422,17 @@ void *game(void* client)
           player->pacman.last_coord[1] = player->pacman.coord[1];
           board[player->pacman.coord[0]][player->pacman.coord[1]]='P';
           board[player->monster.coord[0]][player->monster.coord[1]]='M';
+        }
+        else if(board[player->monster.coord[0]][player->monster.coord[1]]=='M')
+        {
+          search_node(player->monster.coord[0], player->monster.coord[0],0, player->monster.last_coord[0], player->monster.last_coord[1]);
+        }
+        else if(board[player->monster.coord[0]][player->monster.coord[1]]=='P')
+        {
+          board[player->monster.coord[0]][player->monster.coord[1]]='M';
+          random_coord(&a, &b);
+          board[player->monster.coord[0]][player->monster.coord[1]]='P';
+          search_node(player->monster.coord[0], player->monster.coord[0],1, a, b);
         }
         else
         {
@@ -386,7 +446,7 @@ void *game(void* client)
         board[player->monster.last_coord[0]][player->monster.last_coord[1]]=' ';
         player->monster.coord[0] = player->monster.last_coord[0]-1;
         player->monster.coord[1] = player->monster.last_coord[1];
-        if (board[player->monster.last_coord[0]-1][player->monster.last_coord[1]]=='P')
+        if (board[player->monster.coord[0]][player->monster.coord[1]]=='P'&&player->monster.coord[0]==player->pacman.coord[0]&&player->monster.coord[1]==player->pacman.coord[1])
         {
           player->pacman.coord[0] = player->monster.last_coord[0];
           player->pacman.coord[1] = player->monster.last_coord[1];
@@ -394,6 +454,17 @@ void *game(void* client)
           player->pacman.last_coord[1] = player->pacman.coord[1];
           board[player->pacman.coord[0]][player->pacman.coord[1]]='P';
           board[player->monster.coord[0]][player->monster.coord[1]]='M';
+        }
+        else if(board[player->monster.coord[0]][player->monster.coord[1]]=='M')
+        {
+          search_node(player->monster.coord[0], player->monster.coord[0],0, player->monster.last_coord[0], player->monster.last_coord[1]);
+        }
+        else if(board[player->monster.coord[0]][player->monster.coord[1]]=='P')
+        {
+          board[player->monster.coord[0]][player->monster.coord[1]]='M';
+          random_coord(&a, &b);
+          board[player->monster.coord[0]][player->monster.coord[1]]='P';
+          search_node(player->monster.coord[0], player->monster.coord[0],1, a, b);
         }
         else
         {
@@ -406,7 +477,7 @@ void *game(void* client)
         board[player->monster.last_coord[0]][player->monster.last_coord[1]]=' ';
         player->monster.coord[0] = player->monster.last_coord[0];
         player->monster.coord[1] = player->monster.last_coord[1]+1;
-        if (board[player->monster.last_coord[0]][player->monster.last_coord[1]+1]=='P')
+        if (board[player->monster.coord[0]][player->monster.coord[1]]=='P'&&player->monster.coord[0]==player->pacman.coord[0]&&player->monster.coord[1]==player->pacman.coord[1])
         {
           player->pacman.coord[0] = player->monster.last_coord[0];
           player->pacman.coord[1] = player->monster.last_coord[1];
@@ -414,6 +485,17 @@ void *game(void* client)
           player->pacman.last_coord[1] = player->pacman.coord[1];
           board[player->pacman.coord[0]][player->pacman.coord[1]]='P';
           board[player->monster.coord[0]][player->monster.coord[1]]='M';
+        }
+        else if(board[player->monster.coord[0]][player->monster.coord[1]]=='M')
+        {
+          search_node(player->monster.coord[0], player->monster.coord[0],0, player->monster.last_coord[0], player->monster.last_coord[1]);
+        }
+        else if(board[player->monster.coord[0]][player->monster.coord[1]]=='P')
+        {
+          board[player->monster.coord[0]][player->monster.coord[1]]='M';
+          random_coord(&a, &b);
+          board[player->monster.coord[0]][player->monster.coord[1]]='P';
+          search_node(player->monster.coord[0], player->monster.coord[0],1, a, b);
         }
         else
         {
@@ -426,7 +508,7 @@ void *game(void* client)
         board[player->monster.last_coord[0]][player->monster.last_coord[1]]=' ';
         player->monster.coord[0] = player->monster.last_coord[0];
         player->monster.coord[1] = player->monster.last_coord[1]-1;
-        if (board[player->monster.last_coord[0]][player->monster.last_coord[1]-1]=='P')
+        if (board[player->monster.coord[0]][player->monster.coord[1]]=='P'&&player->monster.coord[0]==player->pacman.coord[0]&&player->monster.coord[1]==player->pacman.coord[1])
         {
           player->pacman.coord[0] = player->monster.last_coord[0];
           player->pacman.coord[1] = player->monster.last_coord[1];
@@ -434,6 +516,17 @@ void *game(void* client)
           player->pacman.last_coord[1] = player->pacman.coord[1];
           board[player->pacman.coord[0]][player->pacman.coord[1]]='P';
           board[player->monster.coord[0]][player->monster.coord[1]]='M';
+        }
+        else if(board[player->monster.coord[0]][player->monster.coord[1]]=='M')
+        {
+          search_node(player->monster.coord[0], player->monster.coord[0],0, player->monster.last_coord[0], player->monster.last_coord[1]);
+        }
+        else if(board[player->monster.coord[0]][player->monster.coord[1]]=='P')
+        {
+          board[player->monster.coord[0]][player->monster.coord[1]]='M';
+          random_coord(&a, &b);
+          board[player->monster.coord[0]][player->monster.coord[1]]='P';
+          search_node(player->monster.coord[0], player->monster.coord[0],1, a, b);
         }
         else
         {
@@ -450,13 +543,29 @@ void *game(void* client)
         send_info(player);
         break;
       case 7:
-        player->pacman.coord[0] = player->monster.last_coord[0];
-        player->pacman.coord[1] = player->monster.last_coord[1];
-        player->pacman.last_coord[0] = player->pacman.coord[0];
-        player->pacman.last_coord[1] = player->pacman.coord[1];
-        board[player->pacman.coord[0]][player->pacman.coord[1]]='P';
-        board[player->monster.coord[0]][player->monster.coord[1]]='M';
-        send_info(player);
+        if (player->monster.coord[0]==player->pacman.coord[0]&&player->monster.coord[1]==player->pacman.coord[1])
+        {
+          player->pacman.coord[0] = player->monster.last_coord[0];
+          player->pacman.coord[1] = player->monster.last_coord[1];
+          player->pacman.last_coord[0] = player->pacman.coord[0];
+          player->pacman.last_coord[1] = player->pacman.coord[1];
+          board[player->pacman.coord[0]][player->pacman.coord[1]]='P';
+          board[player->monster.coord[0]][player->monster.coord[1]]='M';
+          send_info(player);
+        }
+        else if(board[player->monster.coord[0]][player->monster.coord[1]]=='M')
+        {
+          search_node(player->monster.coord[0], player->monster.coord[0],0, player->monster.last_coord[0], player->monster.last_coord[1]);
+          send_info(player);
+        }
+        else if(board[player->monster.coord[0]][player->monster.coord[1]]=='P')
+        {
+          board[player->monster.coord[0]][player->monster.coord[1]]='M';
+          random_coord(&a, &b);
+          board[player->monster.coord[0]][player->monster.coord[1]]='P';
+          search_node(player->monster.coord[0], player->monster.coord[0],1, a, b);
+          send_info(player);
+        }
         break;
       //Ficar parado por variadas razoes
       case 8:
