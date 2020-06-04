@@ -86,6 +86,12 @@ int main(int argc, char *argv[])
   //Game loop
   recv_play(sock_fd,id);
 
+  for ( int i = 0 ; i < cols; i++)
+  {
+    free(board_geral[i]);
+  }
+  free(board_geral);
   close_board_windows();
+  pthread_exit(NULL);
   exit(0);
 }

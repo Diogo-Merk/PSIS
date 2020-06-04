@@ -66,6 +66,9 @@ void recv_play(int sock_fd,int id)
   Player pacman, monster;
 	while(1)
   {
+    printf("flag = %d\n",flag );
+    if(flag==-1)
+      break;
     read(sock_fd,&current_id,sizeof(int));
     read(sock_fd,&pacman,sizeof(pacman));
     read(sock_fd,&monster,sizeof(monster));
@@ -78,6 +81,7 @@ void recv_play(int sock_fd,int id)
     if(flag == 0)
       flag = 1;
 	}
+  printf("Close motherfucker 2\n");
 }
 void *game_loop(void *sock_fd)
 {
@@ -92,6 +96,8 @@ void *game_loop(void *sock_fd)
       if(event.type == SDL_QUIT)
       {
         done = SDL_TRUE;
+        printf("close this motherfucker\n");
+        break;
       }
       pacman_local.last_coord[0] = pacman_local.coord[0];
       pacman_local.last_coord[1] = pacman_local.coord[1];
@@ -219,6 +225,9 @@ void *game_loop(void *sock_fd)
       write(sock,&monster_local,sizeof(monster_local));
     }
   }
+  printf("Why aren't you closed yet!\n");
+  flag = -1;
+  return NULL;
 }
 void init_vars(int r,int g, int b)
 {
