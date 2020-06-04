@@ -144,6 +144,32 @@ Player_ID *insert_player(int sock, int id,int colour[3])
   return new;
 
 }
+void search_node(int x, int y,int type,int xnew, int ynew)
+{
+    Player_ID *aux = head;
+    while(aux != NULL)
+    {
+      if(type == 0)
+      {
+        if(aux->pacman.coord[0] == x && aux->pacman.coord[1] == y)
+        {
+          aux->pacman.coord[0] = xnew;
+          aux->pacman.coord[1] = ynew;
+          return;
+        }
+      }
+      else if(type == 1)
+      {
+        if(aux->monster.coord[0] == x && aux->monster.coord[1] == y)
+        {
+          aux->monster.coord[0] = xnew;
+          aux->monster.coord[1] = ynew;
+          return;
+        }
+      }
+      aux = aux->next;
+    }
+}
 
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
