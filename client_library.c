@@ -2,10 +2,9 @@
 #include "client.h"
 #endif
 
-int done = 0,client_exit = 0, n_fruits=0;
+int done = 0,client_exit = 0;
 Player pacman_local;
 Player monster_local;
-Fruta fruta;
 int flag=0,pac_horizontal_move = 0, pac_vertical_move = 0, mon_horizontal_move = 0, mon_vertical_move = 0, xaux = 0, yaux = 0, mouse_x = 0, mouse_y = 0, one_tapmon=0, one_tappac=0;
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 void connect_server(char ip_addr[MAXIP],int port,struct sockaddr_in local_addr,struct sockaddr_in server_addr, int sock_fd)
@@ -50,21 +49,8 @@ void initialize_map(int n_cols, int n_lines, char **board_geral)
   }
 }
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-void update_map(Player pacman,Player monster, int fruits,int sock)
+void update_map(Player pacman,Player monster)
 {
-  Fruta fruta;
-  for (int i = 0; i < fruits; i++)
-  {
-    read(sock,&fruta,sizeof(fruta));
-    if (fruta.tipo==0)
-    {
-      paint_cherry(fruta.x,fruta.y);
-    }
-    if (fruta.tipo==1)
-    {
-      paint_lemon(fruta.x,fruta.y);
-    }
-  }
   if(pacman.last_coord[0] != -1)
     clear_place(pacman.last_coord[0],pacman.last_coord[1]);
   if(monster.last_coord[0] != -1)
@@ -72,7 +58,7 @@ void update_map(Player pacman,Player monster, int fruits,int sock)
   if(pacman.coord[0] == -1 && pacman.coord[1] == -1)
   {
       clear_place(monster.coord[0],monster.coord[1]);
-      return;
+      return NULL;
   }
   printf("coordenadas monstro: %d %d\n", monster.coord[0],monster.coord[1]);
   printf("coordenadas pacman: %d %d\n", pacman.coord[0],pacman.coord[1]);
@@ -81,7 +67,7 @@ void update_map(Player pacman,Player monster, int fruits,int sock)
 }
 void recv_play(int sock_fd,int id)
 {
-	int current_id, n_players;
+	int current_id;
   Player pacman, monster;
 	while(1)
   {
@@ -92,8 +78,7 @@ void recv_play(int sock_fd,int id)
     read(sock_fd,&current_id,sizeof(int));
     read(sock_fd,&pacman,sizeof(pacman));
     read(sock_fd,&monster,sizeof(monster));
-    read(sock_fd,&n_fruits,sizeof(int));
-    update_map(pacman,monster, n_fruits, sock_fd);
+    update_map(pacman,monster);
     if(current_id == id)
     {
       pacman_local = pacman;
