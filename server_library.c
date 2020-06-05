@@ -7,6 +7,7 @@ int n_players=0,n_lines,n_cols,client_exit;
 char **board;
 Player_ID *head = NULL;
 pthread_mutex_t mutex;
+pthread_mutex_t **movement;
 
 void server_start(int sock_fd)
 {
@@ -70,6 +71,13 @@ char** initialize_map(int *cols, int *lines,int *n_playersmax)
   *cols = n_cols;
   *lines = n_lines;
   *n_playersmax = ((n_lines*n_cols)-n_walls)/2;
+
+  movement = (pthread_mutex_t **)malloc(sizeof(pthread_mutex_t *) * n_cols);
+  for ( int i = 0 ; i < n_cols; i++)
+  {
+    movement[i] = (pthread_mutex_t*)malloc(sizeof(pthread_mutex_t) * (n_lines));
+  }
+
   return board;
 }
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -145,7 +153,6 @@ Player_ID *insert_player(int sock, int id,int colour[3])
   n_players++;
   return new;
 }
-
 Player_ID *search_node(int x, int y,int type,int xnew, int ynew, int id)
 {
     Player_ID *aux = head;
@@ -221,7 +228,7 @@ void *game(void* client)
     //May go to switch case
     if(event.type == SDL_QUIT)
       done = SDL_TRUE;
-
+    pthread_mutex_lock(&movement[player->pacman.coord[0]][player->pacman.coord[1]]);
     resp = check_interaction(player->pacman.coord, player->pacman.last_coord, player->pacman.type);
     printf("resp: %d\n", resp);
     switch (resp)
@@ -413,6 +420,8 @@ void *game(void* client)
       default:
         break;
     }
+    pthread_mutex_unlock(&movement[player->pacman.coord[0]][player->pacman.coord[1]]);
+    pthread_mutex_lock(&movement[player->monster.coord[0]][player->monster.coord[1]]);
     respm = check_interaction(player->monster.coord, player->monster.last_coord, player->monster.type);
     printf("respm: %d\n", respm);
     switch (respm)
@@ -606,7 +615,7 @@ void *game(void* client)
       default:
         break;
     }
-
+    pthread_mutex_unlock(&movement[player->monster.coord[0]][player->monster.coord[1]]);
     for (int i = 0; i < n_lines; i++) {
       for (int j = 0; j < n_cols ; j++) {
         printf("%c ", board[j][i]);
