@@ -143,7 +143,6 @@ Player_ID *insert_player(int sock, int id,int colour[3])
   n_players++;
   return new;
 }
-
 Player_ID *search_node(int x, int y,int type,int xnew, int ynew)
 {
     Player_ID *aux = head;
@@ -172,8 +171,25 @@ Player_ID *search_node(int x, int y,int type,int xnew, int ynew)
         }
       }
       aux = aux->next;
-
     }
+    printf("no player in that position\n");
+    return NULL;
+}
+void update_list(Player_ID *node_update)
+{
+  Player_ID *aux = head;
+  while(aux != NULL)
+  {
+    if(aux->id == node_update->id)
+    {
+      aux->pacman = node_update->pacman;
+      aux->monster = node_update->monster;
+      return;
+    }
+    aux = aux->next;
+  }
+  printf("player not found for update\n");
+  return;
 }
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //Thread
@@ -604,6 +620,7 @@ void *game(void* client)
       printf("\n");
     }
     printf("############\n");
+    update_list(player);
 
     //draw interactions server side and
     //use send_info to send shit to clients
