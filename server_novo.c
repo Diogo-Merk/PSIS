@@ -4,7 +4,7 @@
 
 int main()
 {
-  int n_players = 0,n_playersmax,cols,lines,id=0;
+  int n_players = 0,n_playersmax,cols,lines,id=0, n_fruits=0;
   int colour[3];
   int client_sock;
   int sock_fd = socket(AF_INET,SOCK_STREAM,0);
@@ -31,7 +31,7 @@ int main()
     write(client_sock,&cols,sizeof(int));
     write(client_sock,&lines,sizeof(int));
     write(client_sock,&id,sizeof(int));
-    board_geral=initialize_fruits(cols, lines,n_players, board_geral);
+    board_geral=initialize_fruits(cols, lines,n_players, board_geral, &n_fruits);
     //sending board
     for(int i=0;i< cols;i++)
     {
