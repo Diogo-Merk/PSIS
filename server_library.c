@@ -3,9 +3,10 @@
 #endif
 
 struct sockaddr_in local_addr,client_addr;
-int n_players=0,n_lines,n_cols,client_exit;
+int n_players=0,n_lines,n_cols,client_exit,n_frutas;
 char **board;
 Player_ID *head = NULL;
+Fruta_list *headf=NULL;
 pthread_mutex_t mutex;
 pthread_mutex_t **movement;
 
@@ -185,7 +186,74 @@ Player_ID *search_node(int x, int y,int type,int xnew, int ynew, int id)
     printf("player not found\n");
     return NULL;
 }
+Fruta_list *create_node_fruta()
+{
+  Fruta_list *node;
+  return node = (Fruta_list*) malloc(sizeof(Fruta_list));
+}
+void insert_node_fruta(Fruta_list *pnode)
+{
+  Fruta_list *aux = headf;
+  if(headf == NULL)
+  {
+    headf = pnode;
+  }
+  else
+  {
+    while(aux->next != NULL)
+    {
+      aux = aux->next;
+    }
+    aux->next = pnode;
+  }
+}
+void remove_node_fruta()
+{
+  Fruta_list *prev,*temp;
+  temp = headf;
+  if(temp != NULL)
+  {
+    headf = temp->next;
+    free(temp);
+    return;
+  }
+  while(temp != NULL)
+  {
+    prev = temp;
+    temp = temp->next;
+  }
+  if(temp == NULL)
+    return;
+  prev->next = temp->next;
+  free(temp);
+}
+Fruta_list *insert_fruit(int x, int y, int tipo)
+{
+  Fruta_list *new = create_node_fruta();
+  new->fruta.x=x;
+  new->fruta.y=y;
+  new->fruta.tipo=tipo;
+  new->next = NULL;
+  insert_node_fruta(new);
+  return new;
+}
+void search_node_fruta(int x, int y,int xnew, int ynew)
+{
+    Fruta_list *aux = headf;
+    while(aux != NULL)
+    {
+      if (aux->fruta.x==x &&aux->fruta.y==y)
+      {
+        aux->fruta.x=xnew;
+        aux->fruta.y=ynew;
+        return;
+      }
+      aux = aux->next;
 
+    }
+    printf("fruit not found\n");
+    return;
+}
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //Thread
 void *game(void* client)
@@ -376,6 +444,9 @@ void *game(void* client)
       case 6:
         board[player->pacman.last_coord[0]][player->pacman.last_coord[1]]=' ';
         board[player->pacman.coord[0]][player->pacman.coord[1]]='P';
+        random_coord(&a, &b);
+        search_node_fruta(player->pacman.coord[0],player->pacman.coord[1],a,b);
+        board[a][b]='L';
         send_info(player);
         break;
       //Interaçoes entre personagens
@@ -585,7 +656,9 @@ void *game(void* client)
       case 6:
         board[player->monster.last_coord[0]][player->monster.last_coord[1]]=' ';
         board[player->monster.coord[0]][player->monster.coord[1]]='M';
-
+        random_coord(&a, &b);
+        search_node_fruta(player->monster.coord[0],player->monster.coord[1],a,b);
+        board[a][b]='L';
         send_info(player);
         break;
       case 7:
@@ -651,12 +724,19 @@ void send_info(Player_ID *node_send)
 {
   int local = 0;
   Player_ID *aux = head;
+  Fruta_list *aux2 = headf;
   while(aux != NULL)
   {
     write(aux->sock,&client_exit,sizeof(int));
     write(aux->sock,&node_send->id,sizeof(int));
     write(aux->sock,&node_send->pacman,sizeof(aux->pacman));
     write(aux->sock,&node_send->monster,sizeof(aux->monster));
+    write(aux->sock,&n_frutas,sizeof(int));
+    for (int i = 0; i < n_frutas; i++)
+    {
+      write(aux->sock,&aux2->fruta,sizeof(aux2->fruta));
+      aux2 = aux2->next;
+    }
     aux = aux->next;
   }
   return;
@@ -750,11 +830,10 @@ void random_coord(int *x, int *y)
   }
 }
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-char** initialize_fruits(int cols, int lines,int n_players, char** board)
+char** initialize_fruits(int cols, int lines,int n_players, char** board,int *n_fruits)
 {
   srand(time(NULL));
-  int i = 0, l = 0, c = 0, r= 0;
-
+  int i = *n_fruits, l = 0, c = 0, r= 0;
   while (i<((n_players-1)*2))
   {
     l = rand() % lines;
@@ -765,15 +844,20 @@ char** initialize_fruits(int cols, int lines,int n_players, char** board)
       if (r==1)
       {
         board[c][l] = 'C';
+        insert_node_fruta(insert_fruit(c,l,0));
+        n_fruits++;
         i++;
       }
       else
       {
+        insert_node_fruta(insert_fruit(c,l,1));
         board[c][l] = 'L';
+        n_fruits++;
         i++;
       }
     }
   }
+  n_frutas=*n_fruits;
   return board;
 }
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

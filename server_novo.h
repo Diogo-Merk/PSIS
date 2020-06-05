@@ -30,6 +30,17 @@ typedef struct Player_ID
   struct Player_ID *next;
 }Player_ID;
 
+typedef struct Fruta
+{
+  int x, y, tipo;
+}Fruta;
+
+typedef struct Fruta_list
+{
+  Fruta fruta;
+  struct Fruta_list *next;
+}Fruta_list;
+
 
 
 
@@ -40,7 +51,7 @@ void *game(void*);
 int check_interaction(int coord[2], int last_coord[2], int type);
 void send_info(Player_ID *node_send);
 void random_coord(int *x, int *y);
-char** initialize_fruits(int cols, int lines,int n_players, char** board);
+char** initialize_fruits(int cols, int lines,int n_players, char** board, int *n_fruits);
 Player_ID *create_node();
 void disconnect_player();
 void insert_node(Player_ID *pnode);
@@ -48,3 +59,8 @@ void remove_node(int id);
 Player_ID *search_node(int x, int y,int type,int xnew, int ynew,int id);
 Player_ID *insert_player(int sock, int id,int colour[3]);
 int get_n_players();
+void remove_node_fruta();
+Fruta_list *create_node_fruta();
+void insert_node_fruta(Fruta_list *pnode);
+Fruta_list *insert_fruit(int x, int y, int tipo);
+void search_node_fruta(int x, int y,int xnew, int ynew);
