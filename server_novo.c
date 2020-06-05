@@ -18,7 +18,6 @@ int main()
   while(n_players < n_playersmax)
   {
     client_sock = accept(sock_fd,NULL,NULL);
-    n_players++;
     id++;
     //recieve colour of pacman
     for(int i=0;i<3;i++)
@@ -27,10 +26,12 @@ int main()
     }
     //Changes
     clients = insert_player(client_sock,id,colour);
+    n_players = get_n_players();
     //sending map size
     write(client_sock,&cols,sizeof(int));
     write(client_sock,&lines,sizeof(int));
     write(client_sock,&id,sizeof(int));
+    board_geral=initialize_fruits(cols, lines,n_players, board_geral);
     //sending board
     for(int i=0;i< cols;i++)
     {
@@ -40,6 +41,5 @@ int main()
       }
     }
     pthread_create(&client_connect,NULL,game,(void*)&clients);
-    n_players = get_n_players();
   }
 }
