@@ -53,8 +53,6 @@ char** initialize_map(int *cols, int *lines,int *n_playersmax)
     fgetc(map);
   }
 
-  board = initialize_fruits(n_cols, n_lines,n_players, board);
-
   for(int x=0;x<n_cols;x++)
   {
     for(int y=0;y<n_lines;y++)
@@ -736,7 +734,7 @@ void random_coord(int *x, int *y)
   srand(time(NULL));
   *x = rand()%n_cols;
   *y = rand()%n_lines;
-  while(board[*x][*y] == 'B'||board[*x][*y] == 'P'||board[*x][*y] == 'M')
+  while(board[*x][*y] == 'B'||board[*x][*y] == 'P'||board[*x][*y] == 'M'||board[*x][*y] == 'L'||board[*x][*y] == 'C')
   {
     *x = rand()%n_cols;
     *y = rand()%n_lines;
