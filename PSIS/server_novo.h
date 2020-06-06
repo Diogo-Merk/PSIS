@@ -25,6 +25,7 @@ typedef struct Player_ID
 {
   int sock;
   int id;
+  int score;
   Player pacman;
   Player monster;
   struct Player_ID *next;
@@ -40,7 +41,7 @@ void *game(void*);
 int check_interaction(int coord[2], int last_coord[2], int type);
 void send_info(Player_ID *node_send);
 void random_coord(int *x, int *y);
-char** initialize_fruits(int cols, int lines,int n_players, char** board);
+char** initialize_fruits(int cols, int lines,int n_frutas);
 Player_ID *create_node();
 void disconnect_player();
 void insert_node(Player_ID *pnode);
@@ -49,3 +50,4 @@ Player_ID *search_node(int x, int y,int type,int xnew, int ynew,int id);
 Player_ID *insert_player(int sock, int id,int colour[3]);
 int get_n_players();
 void delete_list();
+int search_type(int x, int y,int id);

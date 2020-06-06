@@ -17,8 +17,8 @@ int main(int argc, char *argv[])
 
   //Game Variables
 
-  int cols,lines,n_players=0;
-  char **board_geral;
+  int n_players=0, cols=0, lines=0;
+  char **board;
   int id,r,g,b;
 
   //garante primeira iteração  do loop
@@ -66,21 +66,21 @@ int main(int argc, char *argv[])
   read(sock_fd,&lines,sizeof(int));
   read(sock_fd,&id,sizeof(int));
   //board malloc
-  board_geral = malloc(sizeof(char *) * cols+1);
+  board = malloc(sizeof(char *) * cols+1);
   for ( int i = 0 ; i < cols; i++)
   {
-    board_geral[i] = malloc (sizeof(char) * lines);
+    board[i] = malloc (sizeof(char) * lines);
   }
   //Puts walls on map
   for(int i=0;i<cols;i++)
   {
     for(int j=0;j<lines;j++)
     {
-      read(sock_fd,&board_geral[i][j],sizeof(char));
+      read(sock_fd,&board[i][j],sizeof(char));
     }
   }
   //Draws map and walls
-  initialize_map(cols,lines,board_geral);
+  initialize_map(cols,lines,board);
   if(pthread_create(&play_thread, NULL, game_loop, &sock_fd)){
     printf("Failed to create receive thread\n");
     exit(-1);
@@ -88,11 +88,6 @@ int main(int argc, char *argv[])
   //Game loop
   recv_play(sock_fd,id);
 
-  for ( int i = 0 ; i < cols; i++)
-  {
-    free(board_geral[i]);
-  }
-  free(board_geral);
   close_board_windows();
   exit(0);
 }

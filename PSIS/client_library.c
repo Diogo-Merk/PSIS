@@ -2,9 +2,10 @@
 #include "client.h"
 #endif
 
-int done = 0,client_exit = 0;
+int done = 0,client_exit = 0, cols=0, lines=0, fruits=0;
 Player pacman_local;
 Player monster_local;
+char **board_geral;
 int flag=0,pac_horizontal_move = 0, pac_vertical_move = 0, mon_horizontal_move = 0, mon_vertical_move = 0, xaux = 0, yaux = 0, mouse_x = 0, mouse_y = 0, one_tapmon=0, one_tappac=0;
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 void connect_server(char ip_addr[MAXIP],int port,struct sockaddr_in local_addr,struct sockaddr_in server_addr, int sock_fd)
@@ -25,25 +26,29 @@ void connect_server(char ip_addr[MAXIP],int port,struct sockaddr_in local_addr,s
   }
 }
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-void initialize_map(int n_cols, int n_lines, char **board_geral)
+void initialize_map(int n_cols, int n_lines, char **board)
 {
   create_board_window(n_cols, n_lines);
+  cols=n_cols;
+  lines=n_lines;
   //Preencher paredes
   for(int x=0;x<n_cols;x++)
   {
     for(int y=0;y<n_lines;y++)
     {
-      if(board_geral[x][y] == 'B')
+      if(board[x][y] == 'B')
       {
+        fruits++;
         paint_brick(x,y);
       }
-      if(board_geral[x][y] == 'L')
+      if(board[x][y] == 'L')
       {
         paint_lemon(x,y);
       }
-      if(board_geral[x][y] == 'C')
+      if(board[x][y] == 'C')
       {
         paint_cherry(x,y);
+        fruits++;
       }
     }
   }
@@ -60,25 +65,58 @@ void update_map(Player pacman,Player monster)
       clear_place(monster.coord[0],monster.coord[1]);
       return NULL;
   }
+  for (int i = 0; i < cols; i++)
+  {
+    for (int j = 0; j < lines; j++)
+    {
+      if (board_geral[i][j]=='L')
+      {
+        paint_lemon(i,j);
+      }
+      if (board_geral[i][j]=='C')
+      {
+        paint_cherry(i,j);
+      }
+    }
+  }
   printf("coordenadas monstro: %d %d\n", monster.coord[0],monster.coord[1]);
   printf("coordenadas pacman: %d %d\n", pacman.coord[0],pacman.coord[1]);
-  paint_pacman(pacman.coord[0], pacman.coord[1],pacman.r,pacman.g,pacman.b);
+  if (pacman.type==1)
+  {
+    paint_pacman(pacman.coord[0], pacman.coord[1],pacman.r,pacman.g,pacman.b);
+  }
+  else
+  {
+    paint_powerpacman(pacman.coord[0], pacman.coord[1],pacman.r,pacman.g,pacman.b);
+  }
   paint_monster(monster.coord[0], monster.coord[1],monster.r,monster.g,monster.b);
 }
 void recv_play(int sock_fd,int id)
 {
-	int current_id;
+	int current_id, i=0, j=0;
   Player pacman, monster;
+  board_geral = malloc(sizeof(char *) * cols);
+  for ( i = 0 ; i < cols; i++)
+  {
+    board_geral[i] = malloc (sizeof(char) * lines);
+  }
 	while(1)
   {
     read(sock_fd,&client_exit,sizeof(int));
-    printf("client_exit = %d",client_exit);
     if(client_exit == 1)
       break;
     read(sock_fd,&current_id,sizeof(int));
     read(sock_fd,&pacman,sizeof(pacman));
     read(sock_fd,&monster,sizeof(monster));
+    for (i = 0; i < cols; i++)
+    {
+      for (j = 0; j < lines; j++)
+      {
+        read(sock_fd,&board_geral[i][j],sizeof(char));
+      }
+    }
     update_map(pacman,monster);
+    read(sock_fd,&fruits,sizeof(int));
     if(current_id == id)
     {
       pacman_local = pacman;
@@ -87,7 +125,11 @@ void recv_play(int sock_fd,int id)
     if(flag == 0)
       flag = 1;
 	}
-  printf("Close motherfucker 2\n");
+  for (i = 0 ; i < cols; i++)
+  {
+    free(board_geral[i]);
+  }
+  free(board_geral);
 }
 void *game_loop(void *sock_fd)
 {
@@ -106,7 +148,6 @@ void *game_loop(void *sock_fd)
         write(sock,&pacman_local,sizeof(pacman_local));
         write(sock,&monster_local,sizeof(monster_local));
         done = SDL_TRUE;
-        printf("close this motherfucker\n");
         pthread_exit(NULL);
       }
       pacman_local.last_coord[0] = pacman_local.coord[0];
