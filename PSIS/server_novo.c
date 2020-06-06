@@ -4,7 +4,7 @@
 
 int main()
 {
-  int n_players = 0,n_playersmax,cols,lines,id=0;
+  int n_players = 0, n_frutas=0, n_playersmax,cols,lines,id=0;
   int colour[3];
   int client_sock;
   int sock_fd = socket(AF_INET,SOCK_STREAM,0);
@@ -28,12 +28,14 @@ int main()
     }
     //Changes
     clients = insert_player(client_sock,id,colour);
+    n_players = get_n_players();
 
     //sending map size
     write(client_sock,&cols,sizeof(int));
     write(client_sock,&lines,sizeof(int));
     write(client_sock,&id,sizeof(int));
-    board_geral=initialize_fruits(cols, lines,n_players, board_geral);
+    n_frutas=(n_players-1)*2;
+    board_geral=initialize_fruits(cols, lines,n_frutas);
     //sending board
     for(int i=0;i< cols;i++)
     {
@@ -43,6 +45,5 @@ int main()
       }
     }
     pthread_create(&client_connect,NULL,game,(void*)&clients);
-    n_players = get_n_players();
   }
 }
