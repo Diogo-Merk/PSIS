@@ -196,10 +196,6 @@ int search_type(int x, int y,int id)
     Player_ID *aux = head;
     while(aux != NULL)
     {
-      printf("pacmanaux:%d %d\n", aux->pacman.coord[0],aux->pacman.coord[1]);
-      printf("idaux:%d  typeaux:%d\n", aux->id,aux->pacman.type);
-      printf("pacman:%d %d\n", x,y);
-      printf("type:%d\n", id);
       if(aux->pacman.coord[0] == x && aux->pacman.coord[1] == y && aux->id != id&&aux->pacman.type>1)
       {
         return 1;
@@ -313,6 +309,7 @@ void *game(void* client)
               board[a][b]='M';
               other_player = search_node(player->pacman.coord[0], player->pacman.coord[1],0, a, b,player->id);
               player->pacman.type=  player->pacman.type-1;
+              player->score=player->score+1;
               send_info(other_player);
             }
           }
@@ -334,6 +331,7 @@ void *game(void* client)
               fruits_on_board--;
             board[player->pacman.coord[0]][player->pacman.coord[1]]='P';
             player->pacman.type=player->pacman.type+2;
+            player->score=player->score+1;
           }
           else
           {
@@ -379,6 +377,7 @@ void *game(void* client)
               board[a][b]='M';
               other_player = search_node(player->pacman.coord[0], player->pacman.coord[1],0, a, b,player->id);
               player->pacman.type=  player->pacman.type-1;
+              player->score=player->score+1;
               send_info(other_player);
             }
           }
@@ -400,6 +399,7 @@ void *game(void* client)
               fruits_on_board--;
             board[player->pacman.coord[0]][player->pacman.coord[1]]='P';
             player->pacman.type=player->pacman.type+2;
+            player->score=player->score+1;
           }
           else
           {
@@ -445,6 +445,7 @@ void *game(void* client)
               board[a][b]='M';
               other_player = search_node(player->pacman.coord[0], player->pacman.coord[1],0, a, b,player->id);
               player->pacman.type=  player->pacman.type-1;
+              player->score=player->score+1;
               send_info(other_player);
             }
           }
@@ -467,6 +468,7 @@ void *game(void* client)
               fruits_on_board--;
             board[player->pacman.coord[0]][player->pacman.coord[1]]='P';
             player->pacman.type=player->pacman.type+2;
+            player->score=player->score+1;
           }
           else
           {
@@ -512,6 +514,7 @@ void *game(void* client)
               board[a][b]='M';
               other_player = search_node(player->pacman.coord[0], player->pacman.coord[1],0, a, b,player->id);
               player->pacman.type=  player->pacman.type-1;
+              player->score=player->score+1;
               send_info(other_player);
             }
           }
@@ -535,6 +538,7 @@ void *game(void* client)
               fruits_on_board--;
             board[player->pacman.coord[0]][player->pacman.coord[1]]='P';
             player->pacman.type=player->pacman.type+2;
+            player->score=player->score+1;
           }
           else
           {
@@ -559,6 +563,7 @@ void *game(void* client)
             fruits_on_board--;
           board[player->pacman.coord[0]][player->pacman.coord[1]]='P';
           player->pacman.type=player->pacman.type+2;
+          player->score=player->score+1;
           send_info(player);
           break;
         //Interaçoes entre personagens
@@ -596,6 +601,7 @@ void *game(void* client)
               board[a][b]='M';
               other_player = search_node(player->pacman.coord[0], player->pacman.coord[1],0, a, b,player->id);
               player->pacman.type=  player->pacman.type-1;
+              player->score=player->score+1;
               send_info(player);
               send_info(other_player);
             }
@@ -676,6 +682,7 @@ void *game(void* client)
               random_coord(&a, &b);
               board[a][b]='P';
               other_player = search_node(player->monster.coord[0], player->monster.coord[1],1, a, b,player->id);
+              player->score=player->score+1;
               send_info(other_player);
             }
             else
@@ -703,6 +710,7 @@ void *game(void* client)
             if(fruits_on_board>fruits)
               fruits_on_board--;
             board[player->monster.coord[0]][player->monster.coord[1]]='P';
+            player->score=player->score+1;
           }
           else
           {
@@ -742,6 +750,7 @@ void *game(void* client)
               random_coord(&a, &b);
               board[a][b]='P';
               other_player = search_node(player->monster.coord[0], player->monster.coord[1],1, a, b,player->id);
+              player->score=player->score+1;
               send_info(other_player);
             }
             else
@@ -769,6 +778,7 @@ void *game(void* client)
             if(fruits_on_board>fruits)
               fruits_on_board--;
             board[player->monster.coord[0]][player->monster.coord[1]]='P';
+            player->score=player->score+1;
           }
           else
           {
@@ -807,6 +817,7 @@ void *game(void* client)
               random_coord(&a, &b);
               board[a][b]='P';
               other_player = search_node(player->monster.coord[0], player->monster.coord[1],1, a, b,player->id);
+              player->score=player->score+1;
               send_info(other_player);
             }
             else
@@ -834,6 +845,7 @@ void *game(void* client)
             if(fruits_on_board>fruits)
               fruits_on_board--;
             board[player->monster.coord[0]][player->monster.coord[1]]='P';
+            player->score=player->score+1;
           }
           else
           {
@@ -872,6 +884,7 @@ void *game(void* client)
               random_coord(&a, &b);
               board[a][b]='P';
               other_player = search_node(player->monster.coord[0], player->monster.coord[1],1, a, b,player->id);
+              player->score=player->score+1;
               send_info(other_player);
             }
             else
@@ -899,6 +912,7 @@ void *game(void* client)
             if(fruits_on_board>fruits)
               fruits_on_board--;
             board[player->monster.coord[0]][player->monster.coord[1]]='P';
+            player->score=player->score+1;
           }
           else
           {
@@ -909,24 +923,23 @@ void *game(void* client)
           break;
         //Fruta
         case 6:
-          printf("actual->%d\n on board->%d\n",fruits,fruits_on_board );
           board[player->monster.last_coord[0]][player->monster.last_coord[1]]=' ';
           if (board[player->monster.coord[0]][player->monster.coord[1]]=='L'&&fruits_on_board<=fruits)
           {
-            alarm(2);
-            signal(SIGALRM,bota_frutaL);
+            random_coord(&a, &b);
+            board[a][b]='L';
 
           }
           if (board[player->monster.coord[0]][player->monster.coord[1]]=='C'&&fruits_on_board<=fruits)
           {
-            alarm(2);
-            signal(SIGALRM,bota_frutaC);
+            random_coord(&a, &b);
+            board[a][b]='L';
 
           }
           if(fruits_on_board>fruits)
             fruits_on_board--;
           board[player->monster.coord[0]][player->monster.coord[1]]='M';
-
+          player->score=player->score+1;
           send_info(player);
           break;
         case 7:
@@ -955,6 +968,7 @@ void *game(void* client)
               random_coord(&a, &b);
               board[a][b]='P';
               other_player = search_node(player->monster.coord[0], player->monster.coord[1],1, a, b,player->id);
+              player->score=player->score+1;
               send_info(player);
               send_info(other_player);
             }
@@ -969,6 +983,7 @@ void *game(void* client)
           break;
         //Ficar parado por variadas razoes
         case 8:
+          printf("NHAAAAAAAAAAAAAAAAAAA\n");
           player->monster.coord[0] = player->monster.last_coord[0];
           player->monster.coord[1] = player->monster.last_coord[1];
           send_info(player);
@@ -1009,7 +1024,7 @@ void *game(void* client)
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 void send_info(Player_ID *node_send)
 {
-  int local = 0, i=0, j=0;
+  int i=0, j=0;
   Player_ID *aux = head;
   while(aux != NULL)
   {
@@ -1025,6 +1040,7 @@ void send_info(Player_ID *node_send)
       }
     }
     write(aux->sock,&fruits_on_board,sizeof(int));
+    write(aux->sock,&aux->score,sizeof(int));
     aux = aux->next;
   }
   return;
@@ -1038,7 +1054,6 @@ int check_interaction(int coord[2], int last_coord[2], int type)
     int y=last_coord[1];
     if (i < 0 || j < 0 || i >= n_cols || j >= n_lines)
     {
-      printf("mamas");
       if (x>i && board[x+1][y] != 'B')
       {
         return 2;
@@ -1055,6 +1070,10 @@ int check_interaction(int coord[2], int last_coord[2], int type)
       {
         return 5;
       }
+      else if (x==i&&y==j)
+      {
+        return 1;
+      }
       else
       {
         return 8;
@@ -1062,7 +1081,6 @@ int check_interaction(int coord[2], int last_coord[2], int type)
     }
     else if(board[i][j] == 'B')
     {
-      printf("boobs");
       if (x+1 < n_cols)
       {
         if (x>i && board[x+1][y] != 'B')
@@ -1085,7 +1103,10 @@ int check_interaction(int coord[2], int last_coord[2], int type)
         if(y<j  && board[x][y-1] != 'B')
           return 5;
       }
-
+      if (x==i&&y==j)
+      {
+        return 1;
+      }
       return 8;
     }
     else if (board[i][j]=='C'||board[i][j]=='L')
@@ -1120,7 +1141,6 @@ void random_coord(int *x, int *y)
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 char** initialize_fruits(int cols, int lines,int n_frutas)
 {
-  printf("fruits->%d\nfrutas-> %d",fruits,n_frutas);
   srand(time(NULL));
   int l = 0, c = 0, r= 0;
   while (fruits<n_frutas)

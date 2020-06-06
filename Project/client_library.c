@@ -79,8 +79,6 @@ void update_map(Player pacman,Player monster)
       }
     }
   }
-  printf("coordenadas monstro: %d %d\n", monster.coord[0],monster.coord[1]);
-  printf("coordenadas pacman: %d %d\n", pacman.coord[0],pacman.coord[1]);
   if (pacman.type==1)
   {
     paint_pacman(pacman.coord[0], pacman.coord[1],pacman.r,pacman.g,pacman.b);
@@ -93,7 +91,7 @@ void update_map(Player pacman,Player monster)
 }
 void recv_play(int sock_fd,int id)
 {
-	int current_id, i=0, j=0;
+	int current_id, i=0, j=0, score;
   Player pacman, monster;
   board_geral = malloc(sizeof(char *) * cols);
   for ( i = 0 ; i < cols; i++)
@@ -115,8 +113,10 @@ void recv_play(int sock_fd,int id)
         read(sock_fd,&board_geral[i][j],sizeof(char));
       }
     }
+
     update_map(pacman,monster);
     read(sock_fd,&fruits,sizeof(int));
+    read(sock_fd,&score,sizeof(int));
     if(current_id == id)
     {
       pacman_local = pacman;
@@ -135,12 +135,14 @@ void *game_loop(void *sock_fd)
 {
   SDL_Event event;
   int sock = *((int*) sock_fd);
+  int ordem=0;
   while(!done)
   {
     if(flag == 0)
       continue;
     while(SDL_PollEvent(&event))
     {
+      ordem=0;
       if(event.type == SDL_QUIT)
       {
         pacman_local.coord[0] = -1;
@@ -170,21 +172,25 @@ void *game_loop(void *sock_fd)
               case SDLK_LEFT:
                 if (one_tapmon==0)
                   mon_horizontal_move = -1;
+                ordem=1;
                 one_tapmon = 1;
                 break;
               case SDLK_RIGHT:
                 if (one_tapmon==0)
                   mon_horizontal_move = 1;
+                ordem=1;
                 one_tapmon = 1;
                 break;
               case SDLK_UP:
                 if(one_tapmon==0)
                   mon_vertical_move = -1;
+                ordem=1;
                 one_tapmon=1;
                 break;
               case SDLK_DOWN:
                 if(one_tapmon==0)
                   mon_vertical_move = 1;
+                ordem=1;
                 one_tapmon=1;
                 break;
               default:
@@ -197,18 +203,22 @@ void *game_loop(void *sock_fd)
           switch( event.key.keysym.sym)
           {
             case SDLK_LEFT:
+              ordem=1;
               mon_horizontal_move = 0;
               one_tapmon=0;
               break;
             case SDLK_RIGHT:
+              ordem=1;
               mon_horizontal_move = 0;
               one_tapmon=0;
               break;
             case SDLK_UP:
+              ordem=1;
               mon_vertical_move = 0;
               one_tapmon=0;
               break;
             case SDLK_DOWN:
+              ordem=1;
               mon_vertical_move = 0;
               one_tapmon=0;
               break;
@@ -220,6 +230,7 @@ void *game_loop(void *sock_fd)
           //Pacman Movement
           /* Look for a keypress */
           case SDL_MOUSEBUTTONDOWN:
+              ordem=1;
               /* Check the SDLKey values and move change the coordps */
               if( event.button.button == SDL_BUTTON_LEFT)
               {
@@ -255,6 +266,7 @@ void *game_loop(void *sock_fd)
           break;
           /* Look for letting go of a key */
           case SDL_MOUSEBUTTONUP:
+            ordem=1;
             /* Check the SDLKey values and zero the movemnet when necessary */
             if(event.button.button == SDL_BUTTON_LEFT)
             {
@@ -272,8 +284,11 @@ void *game_loop(void *sock_fd)
       monster_local.coord[1] += mon_vertical_move;
       pacman_local.coord[0] += pac_horizontal_move;
       pacman_local.coord[1] += pac_vertical_move;
-      write(sock,&pacman_local,sizeof(pacman_local));
-      write(sock,&monster_local,sizeof(monster_local));
+      if (ordem==1)
+      {
+        write(sock,&pacman_local,sizeof(pacman_local));
+        write(sock,&monster_local,sizeof(monster_local));
+      }
     }
   }
 }
