@@ -11,6 +11,7 @@
 #include <pthread.h>
 #include <SDL2/SDL.h>
 #include "UI_library.h"
+#include <sys/time.h>
 
 
 typedef struct Player
@@ -49,3 +50,5 @@ Player_ID *search_node(int x, int y,int type,int xnew, int ynew,int id);
 Player_ID *insert_player(int sock, int id,int colour[3]);
 int get_n_players();
 void delete_list();
+void waitplaym(int signum);
+void waitplayp(int signum);

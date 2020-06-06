@@ -97,7 +97,7 @@ void *game_loop(void *sock_fd)
   {
     if(flag == 0)
       continue;
-    while(SDL_PollEvent(&event))
+    while(SDL_WaitEvent(&event))
     {
       if(event.type == SDL_QUIT)
       {

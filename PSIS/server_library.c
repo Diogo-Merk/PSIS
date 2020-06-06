@@ -8,6 +8,7 @@ char **board;
 Player_ID *head = NULL;
 pthread_mutex_t mutex;
 pthread_mutex_t **movement;
+int time_flagp = 0, time_flagm = 0;
 
 void server_start(int sock_fd)
 {
@@ -205,6 +206,10 @@ void *game(void* client)
   int resp=-1, respm=-1;
   Player_ID *player = *(Player_ID**) client;
   Player_ID *other_player;
+  Player pbuffer;
+
+
+
   random_coord(&player->pacman.coord[0], &player->pacman.coord[1]);
   player->pacman.last_coord[0]=player->pacman.coord[0];
   player->pacman.last_coord[1]=player->pacman.coord[1];
@@ -217,33 +222,40 @@ void *game(void* client)
 
   while(!done)
   {
-    read(player->sock,&player->pacman,sizeof(player->pacman));
-    read(player->sock,&player->monster,sizeof(player->monster));
-    if(player->pacman.coord[0] == -1 && player->pacman.coord[1] == -1)
+    if(time_flagp == 0)
     {
-      pthread_mutex_lock(&mutex);
-      client_exit = 1;
-      board[player->pacman.last_coord[0]][player->pacman.last_coord[1]]=' ';
-      board[player->monster.last_coord[0]][player->monster.last_coord[1]]=' ';
-      write(player->sock,&client_exit,sizeof(int));
-      client_exit = 0;
-      send_info(player);
-      remove_node(player->id);
-      pthread_mutex_unlock(&mutex);
-      pthread_exit(NULL);
-    }
-    SDL_PollEvent(&event);
+      read(player->sock,&player->pacman,sizeof(player->pacman));
 
-    if(player->pacman.coord[0]>0 && player->pacman.coord[0]<n_cols && player->pacman.coord[1]>0 && player->pacman.coord[1]<n_lines)
-    {
-      xlock = player->pacman.coord[0];
-      ylock = player->pacman.coord[1];
-    }
-    pthread_mutex_lock(&movement[xlock][ylock]);
-    resp = check_interaction(player->pacman.coord, player->pacman.last_coord, player->pacman.type);
-    printf("resp: %d\n", resp);
-    switch (resp)
-    {
+
+      if(player->pacman.coord[0] == -1 && player->pacman.coord[1] == -1)
+      {
+        pthread_mutex_lock(&mutex);
+        client_exit = 1;
+        board[player->pacman.last_coord[0]][player->pacman.last_coord[1]]=' ';
+        board[player->monster.last_coord[0]][player->monster.last_coord[1]]=' ';
+        write(player->sock,&client_exit,sizeof(int));
+        client_exit = 0;
+        send_info(player);
+        remove_node(player->id);
+        pthread_mutex_unlock(&mutex);
+        pthread_exit(NULL);
+      }
+      SDL_PollEvent(&event);
+
+      if(player->pacman.coord[0]>0 && player->pacman.coord[0]<n_cols && player->pacman.coord[1]>0 && player->pacman.coord[1]<n_lines)
+      {
+        xlock = player->pacman.coord[0];
+        ylock = player->pacman.coord[1];
+      }
+      pthread_mutex_lock(&movement[xlock][ylock]);
+      printf("PAC FLAG -> %d\n",time_flagp);
+      if(time_flagp == 0)
+      {
+        resp = check_interaction(player->pacman.coord, player->pacman.last_coord, player->pacman.type);
+        printf("resp: %d\n", resp);
+      }
+      switch (resp)
+      {
       //Ficar parado
       case 1:
         player->pacman.coord[0] = player->pacman.last_coord[0];
@@ -282,6 +294,9 @@ void *game(void* client)
           board[player->pacman.coord[0]][player->pacman.coord[1]]='P';
         }
         send_info(player);
+        time_flagp = 1;
+        signal(SIGALRM,waitplayp);
+        ualarm(500000,0);
         break;
       //Knockback para a esquerda
       case 3:
@@ -316,6 +331,9 @@ void *game(void* client)
           board[player->pacman.coord[0]][player->pacman.coord[1]]='P';
         }
         send_info(player);
+        time_flagp = 1;
+        signal(SIGALRM,waitplayp);
+        ualarm(500000,0);
         break;
       //Knockback para baixo
       case 4:
@@ -350,6 +368,9 @@ void *game(void* client)
           board[player->pacman.coord[0]][player->pacman.coord[1]]='P';
         }
         send_info(player);
+        time_flagp = 1;
+        signal(SIGALRM,waitplayp);
+        ualarm(500000,0);
         break;
       //Knockback para cima
       case 5:
@@ -384,12 +405,18 @@ void *game(void* client)
           board[player->pacman.coord[0]][player->pacman.coord[1]]='P';
         }
         send_info(player);
+        time_flagp = 1;
+        signal(SIGALRM,waitplayp);
+        ualarm(500000,0);
         break;
       //Fruta
       case 6:
         board[player->pacman.last_coord[0]][player->pacman.last_coord[1]]=' ';
         board[player->pacman.coord[0]][player->pacman.coord[1]]='P';
         send_info(player);
+        time_flagp = 1;
+        signal(SIGALRM,waitplayp);
+        ualarm(500000,0);
         break;
       //Interaçoes entre personagens
       case 7:
@@ -402,12 +429,19 @@ void *game(void* client)
           board[player->pacman.coord[0]][player->pacman.coord[1]]='P';
           board[player->monster.coord[0]][player->monster.coord[1]]='M';
           send_info(player);
+          time_flagp = 1;
+          signal(SIGALRM,waitplayp);
+          ualarm(500000,0);
+
         }
         else if(board[player->pacman.coord[0]][player->pacman.coord[1]]=='P')
         {
           other_player = search_node(player->pacman.coord[0], player->pacman.coord[1],1, player->pacman.last_coord[0], player->pacman.last_coord[1],player->id);
           send_info(player);
           send_info(other_player);
+          time_flagp = 1;
+          signal(SIGALRM,waitplayp);
+          ualarm(500000,0);
         }
         else if(board[player->pacman.coord[0]][player->pacman.coord[1]]=='M')
         {
@@ -415,6 +449,10 @@ void *game(void* client)
           random_coord(&player->pacman.coord[0], &player->pacman.coord[1]);
           board[player->pacman.coord[0]][player->pacman.coord[1]]='P';
           send_info(player);
+          time_flagp = 1;
+          signal(SIGALRM,waitplayp);
+          ualarm(500000,0);
+
         }
         break;
       //Ficar parado por variadas razoes
@@ -422,28 +460,51 @@ void *game(void* client)
         player->pacman.coord[0] = player->pacman.last_coord[0];
         player->pacman.coord[1] = player->pacman.last_coord[1];
         send_info(player);
+        time_flagp = 1;
+        signal(SIGALRM,waitplayp);
+        ualarm(500000,0);
         break;
       //Andar para espaço livre
       case 0:
         board[player->pacman.last_coord[0]][player->pacman.last_coord[1]]=' ';
         board[player->pacman.coord[0]][player->pacman.coord[1]]='P';
         send_info(player);
+        time_flagp = 1;
+        signal(SIGALRM,waitplayp);
+        ualarm(500000,0);
         break;
 
       default:
         break;
     }
-    pthread_mutex_unlock(&movement[xlock][ylock]);
-    if(player->monster.coord[0]>0 && player->monster.coord[0]<n_cols && player->monster.coord[1]>0 && player->monster.coord[1]<n_lines)
-    {
-      xlock = player->monster.coord[0];
-      ylock = player->monster.coord[1];
+      time_flagp = 1;
+      signal(SIGALRM,waitplayp);
+      ualarm(500000,0);
+      pthread_mutex_unlock(&movement[xlock][ylock]);
     }
-    pthread_mutex_lock(&movement[xlock][ylock]);
-    respm = check_interaction(player->monster.coord, player->monster.last_coord, player->monster.type);
-    printf("respm: %d\n", respm);
-    switch (respm)
+    else
     {
+      read(player->sock,&pbuffer,sizeof(Player));
+      send_info(player);
+    }
+    if(time_flagm == 0)
+    {
+      read(player->sock,&player->monster,sizeof(player->monster));
+
+      if(player->monster.coord[0]>0 && player->monster.coord[0]<n_cols && player->monster.coord[1]>0 && player->monster.coord[1]<n_lines)
+      {
+        xlock = player->monster.coord[0];
+        ylock = player->monster.coord[1];
+      }
+      pthread_mutex_lock(&movement[xlock][ylock]);
+      printf("MON FLAG -> %d\n",time_flagp);
+      if(time_flagm == 0)
+      {
+        respm = check_interaction(player->monster.coord, player->monster.last_coord, player->monster.type);
+        printf("respm: %d\n", respm);
+      }
+      switch (respm)
+      {
       //Ficar parado pq n houve movimento
       case 1:
         player->monster.coord[0] = player->monster.last_coord[0];
@@ -597,7 +658,6 @@ void *game(void* client)
           board[player->monster.coord[0]][player->monster.coord[1]]='M';
         }
 
-        send_info(player);
         break;
       //Fruta
       case 6:
@@ -616,12 +676,14 @@ void *game(void* client)
           board[player->pacman.coord[0]][player->pacman.coord[1]]='P';
           board[player->monster.coord[0]][player->monster.coord[1]]='M';
           send_info(player);
+
         }
         else if(board[player->monster.coord[0]][player->monster.coord[1]]=='M')
         {
           other_player = search_node(player->monster.coord[0], player->monster.coord[1],0, player->monster.last_coord[0], player->monster.last_coord[1],player->id);
           send_info(player);
           send_info(other_player);
+
         }
         else if(board[player->monster.coord[0]][player->monster.coord[1]]=='P')
         {
@@ -650,7 +712,19 @@ void *game(void* client)
       default:
         break;
     }
-    pthread_mutex_unlock(&movement[xlock][ylock]);
+      time_flagm = 1;
+      signal(SIGALRM,waitplaym);
+      ualarm(500000,0);
+      pthread_mutex_unlock(&movement[xlock][ylock]);
+    }
+    else
+    {
+      read(player->sock,&pbuffer,sizeof(Player));
+      send_info(player);
+    }
+
+
+
     for (int i = 0; i < n_lines; i++) {
       for (int j = 0; j < n_cols ; j++) {
         printf("%c ", board[j][i]);
@@ -821,4 +895,14 @@ char** update_fruits(int cols, int lines, char** board)
 int get_n_players()
 {
   return n_players;
+}
+void waitplayp(int signum)
+{
+  time_flagp = 0;
+  printf("PACMAN FLAG\n");
+}
+void waitplaym(int signum)
+{
+  time_flagm = 0;
+  printf("MONSTER FLAG\n");
 }
